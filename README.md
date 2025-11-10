@@ -65,6 +65,14 @@ The system is modular and extensible, enabling expansion to other markets and in
 - AI-generated defense letters (manual validation)
 - CLI interface + basic logging
 
+### Phase 1.5 – Knowledge Base Foundation (Current Focus)
+- **Automated Data Collection**: Implemented web scraping infrastructure (`backend/services/web_scraper.py`) for Portuguese legal databases (ANSR, with placeholders for Diario da Republica and DGSI.pt).
+- **RAG Enhancement**: Expanded knowledge base with metadata tagging and quality scoring in `rag/ingest.py`.
+- **Metadata System**: Implemented database models (`backend/app/models.py`) for document metadata and quality tracking.
+- **CLI Commands**: Added CLI commands (`cli/main.py`) for web scraping and knowledge base ingestion (directory and single document).
+- **Quality Control**: Automated document scoring and filtering for legal relevance (initial implementation in `rag/ingest.py`).
+- **Continuous Updates**: Scheduled monitoring for new legal developments and precedents (planned).
+
 ### Phase 2 – Beta
 - Launch landing page / subscription model
 - Automate end-to-end generation & PDF delivery

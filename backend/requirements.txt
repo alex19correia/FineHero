@@ -23,6 +23,7 @@ easyocr
 # HTTP requests
 requests
 httpx
+beautifulsoup4
 
 # AI and ML
 google-generativeai
