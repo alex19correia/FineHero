@@ -1,0 +1,8 @@
+RPD_Name: standard_defense
+Trigger: fine_received
+Conditions:
+  - fine_amount < 200
+  - infraction_code in ['A123', 'B456']
+Actions:
+  - generate_defense_template: standard
+  - store_history: true

@@ -1,0 +1,105 @@
+# FineHero / Multas AI – RAG Workflow Diagram 🗂️
+
+## 1. Workflow Overview
+
+```
+[PDF Fine Notification] 
+        │
+        ▼
+[PDF Ingestion & OCR]
+  - Extract text
+  - Metadata capture (date, fine type, vehicle, location)
+        │
+        ▼
+[Chunking & Embeddings]
+  - Split text into 500-token chunks
+  - Generate embeddings (OpenAI / local transformer)
+  - Store in Vector Database (Pinecone/FAISS/Weaviate)
+        │
+        ▼
+[User Input / CLI]
+  - Fine details entered by user:
+      - Name, NIF, Address
+      - Vehicle details
+      - Fine type, Auto #, Date, Location
+      - Description of facts
+        │
+        ▼
+[Retrieval Layer]
+  - Query vector DB with user input embedding
+  - Retrieve top-K most relevant chunks (legal articles, municipal rules, past letters)
+  - Filter by jurisdiction, date, legal type
+        │
+        ▼
+[Prompt Assembly]
+  - Inject retrieved chunks into System + User prompt template
+  - System prompt constraints:
+      - Formal legal tone
+      - Cite retrieved articles
+      - Include structured sections:
+          1. Identification
+          2. Exposition of Facts
+          3. Legal Grounding
+          4. Request/Appeal
+          5. Instructions for Submission
+        │
+        ▼
+[LLM Generation]
+  - Generate draft letter
+  - Max 700 words
+  - Optional temperature: 0–0.2
+        │
+        ▼
+[Post-processing / PDF Generation]
+  - Convert text to PDF
+  - Attach metadata, submission instructions
+  - Save PDF + user history in database
+        │
+        ▼
+[Optional Human Review]
+  - Flag complex or ambiguous cases
+  - Allow lawyer/validator to edit before sending
+        │
+        ▼
+[User Delivery]
+  - PDF download
+  - Email / portal delivery instructions
+        │
+        ▼
+[Continuous Learning / Feedback Loop]
+  - User or lawyer feedback captured
+  - Update embeddings & ranking
+  - Refine prompts & templates
+  - Improve retrieval accuracy and letter quality
+        │
+        └─────────────► [Back to Retrieval Layer]
+```
+
+---
+
+## 2. Component Annotations
+
+| Component                   | Description                                                                      |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| **PDF Ingestion & OCR**     | Extracts text and metadata from uploaded fines (PDFs, scans).                    |
+| **Chunking & Embeddings**   | Splits documents into smaller pieces and embeds them for semantic search.        |
+| **Vector Database**         | Stores embeddings and metadata for fast similarity search.                       |
+| **Retrieval Layer**         | Retrieves the most relevant legal references, past letters, and municipal rules. |
+| **Prompt Assembly**         | Combines user input and retrieved docs into structured LLM prompt.               |
+| **LLM Generation**          | Produces a draft letter with legal citations and structured format.              |
+| **Post-processing**         | Converts LLM output into a PDF, adds metadata, and saves to database.            |
+| **Human Review (Optional)** | Allows verification for complex or ambiguous cases.                              |
+| **User Delivery**           | Provides the generated PDF to the user, with submission instructions.            |
+| **Feedback Loop**           | Captures corrections to improve RAG performance over time.                       |
+
+---
+
+## 3. Notes for Implementation
+
+1. **Embeddings**: Use high-dimensional embeddings (~1536–4096) depending on model; normalize for cosine similarity.
+2. **Top-K Retrieval**: Default K = 6–12 chunks; tune based on average fine complexity.
+3. **Prompt Structure**: Keep system prompt concise but strict on legal tone and citation rules.
+4. **Feedback Loop**: Store every user/case correction with reference to retrieved chunks for continuous learning.
+5. **Scalability**: Design retrieval and LLM calls to handle concurrent users; caching frequently used legal snippets improves performance.
+6. **Multi-Language**: Separate embeddings by language; use language detection to route user input to correct vector store.
+

@@ -1,0 +1,77 @@
+{
+  "global_rules": {
+    "description": "General rules for the AI's behavior, promoting safety and consistency.",
+    "rules": [
+      {
+        "rule": "confirm_before_destructive_commands",
+        "description": "Always ask for user confirmation before executing commands that modify or delete files, or change system state (e.g., 'rm', 'git reset').",
+        "enabled": true
+      },
+      {
+        "rule": "no_hardcoded_secrets",
+        "description": "Prohibit writing hardcoded secrets or API keys into files. Use environment variables or a secure secret management tool instead.",
+        "enabled": true
+      },
+      {
+        "rule": "enforce_style_guide",
+        "description": "Adhere to established coding style guides for the project's language (e.g., PEP 8 for Python, Prettier for JavaScript).",
+        "enabled": true
+      },
+      {
+        "rule": "workspace_sandboxing",
+        "description": "All file system operations should be restricted to the project's workspace directory unless explicitly permitted by the user.",
+        "enabled": true
+      }
+    ]
+  },
+  "tool_restrictions": {
+    "description": "Specific restrictions on tool usage to prevent unintended consequences.",
+    "rules": [
+      {
+        "tool": "run_shell_command",
+        "restriction": "Avoid using shell commands that can have system-wide impact without clear user consent and understanding. Prefer safer, more specific tools when available.",
+        "enabled": true
+      },
+      {
+        "tool": "git",
+        "restriction": "Do not 'git push' changes to a remote repository without explicit user confirmation on the exact changes to be pushed.",
+        "enabled": true
+      }
+    ]
+  },
+  "prompt_guidelines": {
+    "description": "Guidelines for interpreting and responding to user prompts.",
+    "rules": [
+      {
+        "guideline": "clarify_ambiguity",
+        "description": "If a user's request is ambiguous or lacks detail, ask clarifying questions before taking action.",
+        "enabled": true
+      },
+      {
+        "guideline": "explain_plan",
+        "description": "For multi-step tasks, briefly explain the plan of action to the user before starting.",
+        "enabled": true
+      },
+      {
+        "guideline": "state_assumptions",
+        "description": "If you have to make an assumption to proceed, state the assumption clearly to the user.",
+        "enabled": true
+      },
+      {
+        "guideline": "prefer_user_code_style",
+        "description": "When modifying code, mimic the style, structure, and conventions of the existing codebase.",
+        "enabled": true
+      },
+      {
+        "guideline": "consult_rules_and_docs",
+        "description": "Before executing a complex task, review `gemini_rules.json` and any relevant project documentation to ensure compliance and accuracy.",
+        "enabled": true
+      },
+      {
+        "guideline": "self_correct_and_learn",
+        "description": "If a mistake is made, analyze the cause and update internal knowledge or suggest rule improvements to prevent recurrence.",
+        "enabled": true
+      }
+    ]
+  }
+}

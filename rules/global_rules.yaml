@@ -1,0 +1,27 @@
+# Global Rules for FineHero / Multas AI
+
+validation:
+  # All PDFs must be validated and OCR-processed if necessary.
+  require_ocr_if_unreadable: true
+
+extraction:
+  # Extracted data must follow the standard schema.
+  schema:
+    date: "YYYY-MM-DD"
+    location: "City/Street"
+    infractor: "Name or vehicle"
+    fine_amount: "EUR"
+    infraction_code: "Code/Article"
+    PDF_reference: "file_name.pdf"
+
+defense:
+  # AI defenses must be stored with user feedback.
+  store_with_feedback: true
+
+history:
+  # Historical data must be preserved for future learning.
+  preserve_for_learning: true
+
+strategy:
+  # Defensive strategy varies depending on fine amount, infraction code, and previous defense history.
+  enable_dynamic_strategy: true

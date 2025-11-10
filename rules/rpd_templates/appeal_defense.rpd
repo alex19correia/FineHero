@@ -1,0 +1,9 @@
+RPD_Name: appeal_defense
+Trigger: user_requests_appeal
+Conditions:
+  - fine_amount >= 200
+  - infraction_code in ['C789', 'D012']
+Actions:
+  - generate_defense_template: appeal
+  - store_history: true
+  - notify_user: email
