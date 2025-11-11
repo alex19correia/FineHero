@@ -23,6 +23,7 @@ from typing import Dict, List, Optional
 import requests
 from bs4 import BeautifulSoup
 import logging
+from urllib.parse import urlparse
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent.parent
@@ -65,6 +66,25 @@ class LegalContentResearcher:
                 'autarquia multa 2024'
             ]
         }
+        
+        self.ALLOWED_DOMAINS = [
+            'dre.pt',
+            'dgsi.pt',
+            'ansr.pt',
+            'lisboa.pt',
+            'porto.pt',
+            'forum.juridica.pt',
+            'forum-portugal.blogspot.com',
+            'www.consumidor360.pt'
+        ]
+
+    def _sanitize_filename(self, filename: str) -> str:
+        """Sanitize filename by removing invalid characters and replacing spaces."""
+        # Remove any character that is not a letter, number, underscore, hyphen, or dot
+        sanitized = re.sub(r'[^\w\-. ]', '', filename)
+        # Replace spaces with underscores
+        sanitized = sanitized.replace(' ', '_')
+        return sanitized
 
     def search_dre_for_new_content(self, days_back: int = 30) -> List[Dict]:
         """Search DRE for new legal documents"""
@@ -300,7 +320,7 @@ class LegalContentResearcher:
                 content = self._download_document_content(doc['url'])
                 if content:
                     # Save as new article
-                    article_file = self.knowledge_dir / "legal_articles" / f"new_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{doc['title'][:50]}.txt"
+                    article_file = self.knowledge_dir / "legal_articles" / f"new_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{self._sanitize_filename(doc['title'])[:50]}.txt"
                     
                     with open(article_file, 'w', encoding='utf-8') as f:
                         f.write(f"# {doc['title']}\n\n")
@@ -323,7 +343,7 @@ class LegalContentResearcher:
         for decision in new_decisions:
             try:
                 # Similar download and save logic for court decisions
-                decision_file = self.knowledge_dir / "legal_articles" / f"court_decision_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+                decision_file = self.knowledge_dir / "legal_articles" / f"court_decision_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{self._sanitize_filename(decision['title'])[:50]}.txt"
                 
                 with open(decision_file, 'w', encoding='utf-8') as f:
                     f.write(f"# {decision['title']}\n\n")
@@ -370,6 +390,7 @@ class LegalContentResearcher:
                         'location': example['location'],
                         'amount': example['amount'],
                         'authority': example['authority'],
+                        'date_issued': datetime.fromisoformat(example['discovery_date']).strftime('%Y-%m-%d'),
                         'contest_outcome': example['contest_outcome'],
                         'user_notes': f"Source: {example['source']}",
                         'submission_date': example['discovery_date']
@@ -447,6 +468,11 @@ class LegalContentResearcher:
     def _download_document_content(self, url: str) -> Optional[str]:
         """Download content from document URL"""
         try:
+            parsed_url = urlparse(url)
+            if parsed_url.hostname not in self.ALLOWED_DOMAINS:
+                logger.warning(f"Attempted to download from untrusted domain: {parsed_url.hostname}. Skipping.")
+                return None
+
             session = requests.Session()
             session.headers.update({
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'

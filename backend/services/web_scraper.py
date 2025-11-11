@@ -203,25 +203,13 @@ class WebScraper:
 
     def _parse_diario_da_republica_page(self, soup: BeautifulSoup, current_url: str) -> (List[Dict], List[str]):
         """
-        Placeholder: Parses a single Diario da Republica page for documents and pagination links.
-        Actual implementation would require detailed knowledge of DR.pt's HTML structure.
+        Parses a single Diario da Republica page for documents and pagination links.
+        NOTE: dre.pt is a JavaScript-rendered site. This function will not be able to extract
+        dynamic content using BeautifulSoup alone. It will return an empty list of documents.
         """
         page_documents = []
         next_page_links = []
-        print(f"Placeholder: Parsing Diario da Republica page: {current_url}")
-
-        # Example: Look for links to legal acts or diplomas
-        # This is highly speculative and needs to be adapted to the actual site.
-        for article_link in soup.select("a.dr-article-link"): # Hypothetical CSS selector
-            title = article_link.text.strip()
-            url = urljoin(current_url, article_link['href'])
-            page_documents.append({"title": title, "url": url, "source": "Diario da Republica", "document_type": "law"})
-            print(f"Found DR document: {title} at {url}")
-
-        # Example: Pagination
-        for next_link in soup.select("a.next-page"): # Hypothetical CSS selector
-            next_page_links.append(urljoin(current_url, next_link['href']))
-
+        print(f"Warning: dre.pt is a JavaScript-rendered site. Cannot extract dynamic content from: {current_url}")
         return page_documents, next_page_links
 
     def scrape_diario_da_republica_documents(self, start_url: str, max_pages: int = 5) -> List[Dict]:

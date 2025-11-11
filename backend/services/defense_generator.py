@@ -1,7 +1,4 @@
-from app.schemas import Fine
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
+from ..app.schemas import Fine
 from rag.retriever import RAGRetriever
 
 class DefenseGenerator:
@@ -15,6 +12,13 @@ class DefenseGenerator:
         """
         self.fine_data = fine_data
         self.retriever = RAGRetriever()
+
+    def _sanitize_input(self, text: str) -> str:
+        """
+        Sanitizes input text to prevent prompt injection.
+        Escapes double quotes and newlines.
+        """
+        return text.replace('"', '\\"').replace('\\n', ' ').replace('\\r', ' ')
 
     def generate_prompt(self) -> str:
         """
@@ -36,11 +40,11 @@ class DefenseGenerator:
         prompt = (
             "Please act as a legal expert in Portuguese traffic law. "
             "Generate an administrative defense for the following traffic fine:\n\n"
-            f"- Date: {self.fine_data.date}\n"
-            f"- Location: {self.fine_data.location}\n"
-            f"- Infraction Code: {self.fine_data.infraction_code}\n"
-            f"- Fine Amount: {self.fine_data.fine_amount} EUR\n"
-            f"- Infractor: {self.fine_data.infractor}\n"
+            f"- Date: {self._sanitize_input(str(self.fine_data.date))}\n"
+            f"- Location: {self._sanitize_input(self.fine_data.location)}\n"
+            f"- Infraction Code: {self._sanitize_input(self.fine_data.infraction_code)}\n"
+            f"- Fine Amount: {self._sanitize_input(str(self.fine_data.fine_amount))} EUR\n"
+            f"- Infractor: {self._sanitize_input(self.fine_data.infractor)}\n"
             f"{context_str}\n\n"
             "The defense should be formal, well-structured, and reference relevant legislation if possible. "
             "Provide the best possible argument for contesting this fine."
@@ -55,9 +59,9 @@ class DefenseGenerator:
         print("Requesting defense from Gemini CLI...")
         # In a real implementation, this would involve calling the Gemini CLI
         # as a subprocess and capturing its output.
-        print("--- GEMINI PROMPT ---")
-        print(prompt)
-        print("---------------------")
+        # print("--- GEMINI PROMPT ---")
+        # print(prompt)
+        # print("---------------------")
         
         # Placeholder response
         generated_defense = (
