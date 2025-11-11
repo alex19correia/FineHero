@@ -1,0 +1,17 @@
+{
+  "204856d8": {
+    "fine_id": "204856d8",
+    "fine_type": "estacionamento",
+    "location": "Praça do Comércio, Lisboa",
+    "amount": 45.0,
+    "infraction_code": "48.1.a",
+    "date_issued": "2024-01-15",
+    "authority": "Câmara Municipal de Lisboa",
+    "description": "Estacionamento em zona de duração limitada sem ticket",
+    "user_city": "Lisboa",
+    "contest_outcome": "successful",
+    "user_notes": "Ticket expirado por apenas 5 minutos",
+    "privacy_hash": "ee6154a8",
+    "submission_date": "2025-11-11 18:29:22.996303"
+  }
+}

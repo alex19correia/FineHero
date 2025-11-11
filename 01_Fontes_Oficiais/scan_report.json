@@ -1,0 +1,103 @@
+{
+  "scan_timestamp": "2025-11-11T18:36:57.083950",
+  "java_available": false,
+  "vpn_enabled": false,
+  "source_results": {
+    "IMT - Instituto da Mobilidade e dos Transportes": {
+      "name": "IMT - Instituto da Mobilidade e dos Transportes",
+      "primary_url": "https://www.imt.pt/",
+      "status": "failed",
+      "methods_tested": [
+        "selenium",
+        "vpn",
+        "tor"
+      ],
+      "successful_methods": [],
+      "failed_methods": [
+        {
+          "method": "selenium",
+          "error": "Selenium not installed - run: pip install selenium",
+          "timestamp": "2025-11-11T18:36:49.679482"
+        },
+        {
+          "method": "vpn",
+          "error": "Access method vpn not available",
+          "timestamp": "2025-11-11T18:36:49.679505"
+        },
+        {
+          "method": "tor",
+          "error": "Access method tor not available",
+          "timestamp": "2025-11-11T18:36:49.679513"
+        }
+      ],
+      "recommendations": [
+        "Manual download required - see manual_downloads.md"
+      ]
+    },
+    "ANSR - Autoridade Nacional de Segurança Rodoviária": {
+      "name": "ANSR - Autoridade Nacional de Segurança Rodoviária",
+      "primary_url": "https://www.ansr.pt/",
+      "status": "failed",
+      "methods_tested": [
+        "direct",
+        "selenium",
+        "vpn"
+      ],
+      "successful_methods": [],
+      "failed_methods": [
+        {
+          "method": "direct",
+          "error": "Error testing direct: HTTPSConnectionPool(host='www.ansr.pt', port=443): Max retries exceeded with url: / (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000001ED48BE2AD0>: Failed to establish a new connection: [WinError 10061] Nenhuma ligação pôde ser feita porque o computador de destino\\r\\nas recusou ativamente'))",
+          "timestamp": "2025-11-11T18:36:52.588469"
+        },
+        {
+          "method": "selenium",
+          "error": "Selenium not installed - run: pip install selenium",
+          "timestamp": "2025-11-11T18:36:52.589020"
+        },
+        {
+          "method": "vpn",
+          "error": "Access method vpn not available",
+          "timestamp": "2025-11-11T18:36:52.589027"
+        }
+      ],
+      "recommendations": [
+        "Manual download required - see manual_downloads.md",
+        "Alternative URL works: https://www.acm.pt/"
+      ]
+    },
+    "DRE - Diário da República": {
+      "name": "DRE - Diário da República",
+      "primary_url": "https://dre.pt/",
+      "status": "accessible",
+      "methods_tested": [
+        "direct",
+        "selenium"
+      ],
+      "successful_methods": [
+        {
+          "method": "direct",
+          "message": "Direct access successful (200)",
+          "timestamp": "2025-11-11T18:36:57.081415"
+        }
+      ],
+      "failed_methods": [
+        {
+          "method": "selenium",
+          "error": "Selenium not installed - run: pip install selenium",
+          "timestamp": "2025-11-11T18:36:57.081951"
+        }
+      ],
+      "recommendations": [
+        "Use direct for best results"
+      ]
+    }
+  },
+  "generated_files": {
+    "manual_download_guide": "01_Fontes_Oficiais\\manual_downloads.md",
+    "verification_script": "verify_manual_downloads.py"
+  },
+  "recommendations": [
+    "Partial access available (1/3 sources) - use manual download for restricted sources"
+  ]
+}

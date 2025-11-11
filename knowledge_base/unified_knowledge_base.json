@@ -1,0 +1,349 @@
+{
+  "bf131368007d": {
+    "entry_id": "bf131368007d",
+    "entry_type": "legal_article",
+    "title": "# Artigo 105.º — Semáforos",
+    "content": "# Artigo 105.º — Semáforos\n\n1 - As luzes dos semáforos têm o seguinte significado:\na) Luz vermelha constante - indicação de paragem obrigatória para todos os veículos;\nb) Luz vermelha intermitente - indicação de paragem obrigatória antes do atravessamento da via;\nc) Luz âmbar - indicação de que a luz seguinte será vermelha;\nd) Luz verde - indicação de que a circulação é permitida.\n\n2 - A luz verde autoriza a circulação, mas os condutores devem, antes de iniciar o movimento, certificar-se de que pode ser efetuado com segurança.\n\n3 - A luz vermelha obriga todos os condutores a parar antes da linha de paragem, não podendo nenhum veículo atravessar a pista de circulação.\n\n4 - No caso de semáforos com setas, a respetiva indicação prevalece sobre as outras, devendo os condutores, antes de as seguir, certificar-se de que o podem fazer com segurança.\n\n5 - No caso de semáforos avariados ou extinguidos, aplica-se o disposto no artigo 104.º.",
+    "source": "Código da Estrada",
+    "source_type": "official",
+    "jurisdiction": "Portugal",
+    "fine_type": "estacionamento",
+    "legal_references": [
+      "105",
+      "104"
+    ],
+    "quality_score": 0.9,
+    "confidence_level": 1.0,
+    "tags": [
+      "veículo",
+      "condutor",
+      "via pública"
+    ],
+    "metadata": {
+      "file_source": "knowledge_base\\legal_articles\\artigo_105_sinais_luminosos.txt",
+      "article_number": "105",
+      "source_file": "official_legal"
+    },
+    "created_date": "2025-11-11T18:36:57.089810",
+    "last_updated": "2025-11-11T18:36:57.089819",
+    "usage_count": 0
+  },
+  "5f19e155d4a1": {
+    "entry_id": "5f19e155d4a1",
+    "entry_type": "legal_article",
+    "title": "# Artigo 121.º — Documentos e equipamentos",
+    "content": "# Artigo 121.º — Documentos e equipamentos\n\n1 - Todos os veículos devem estar dotados dos documentos e equipamentos que constem do respetivo registo, bem como dos documentos legalmente exigíveis para a respetiva circulação.\n\n2 - O condutor é obrigado a exhibir:\na) A carta de condução;\nb) O documento que titula a titularidade do veículo ou, no caso de propriedade alheia, documento que comprove a disponibilidade;\nc) O certificado de seguro de responsabilidade civil;\nd) O documento que comprove o pagamento do imposto único de circulação, quando devido;\ne) O comprovativo do pagamento de taxas e outras imposições de carácter fiscal que incidam sobre a circulação do veículo.\n\n3 - Nos veículos motorizados e seus reboques, devem encontrar-se os seguintes equipamentos:\na) Sinais luminosos, sonoros e dispositivos refletores;\nb) Espelho retrovisor interno;\nc) Cinto de segurança ou outro dispositivo de retenção homologado;\nd) Dispositivos de emergência.\n\n4 - No caso de veículos com dispositivos de emergência, estes devem encontrar-se em perfeitas condições de funcionamento.",
+    "source": "Código da Estrada",
+    "source_type": "official",
+    "jurisdiction": "Portugal",
+    "fine_type": "documentos",
+    "legal_references": [
+      "121"
+    ],
+    "quality_score": 0.9,
+    "confidence_level": 1.0,
+    "tags": [
+      "veículo",
+      "condutor"
+    ],
+    "metadata": {
+      "file_source": "knowledge_base\\legal_articles\\artigo_121_vehicle_docs.txt",
+      "article_number": "121",
+      "source_file": "official_legal"
+    },
+    "created_date": "2025-11-11T18:36:57.090343",
+    "last_updated": "2025-11-11T18:36:57.090350",
+    "usage_count": 0
+  },
+  "79534f19caf5": {
+    "entry_id": "79534f19caf5",
+    "entry_type": "legal_article",
+    "title": "# Artigo 135.º — Formas de notificação",
+    "content": "# Artigo 135.º — Formas de notificação\n\n1 - As notificações efetuam-se:\n\na) Por contacto pessoal com o notificando no local em que for encontrado;\nb) Mediante carta registada com aviso de receção, expedida para o domicílio ou sede do notificando;\nc) Mediante carta simples, expedida para o domicílio ou sede do notificando;\nd) Por via eletrónica, através da caixa postal eletrónica.\n\n2 - A notificação por contacto pessoal deve ser efetuada, sempre que possível, no ato de autuação, podendo ainda ser utilizada quando o notificando for encontrado pela entidade competente.\n\n3 - Se não for possível, no ato de autuação, proceder à notificação por contacto pessoal, a notificação pode ser efetuada através de carta simples, expedida para o domicílio ou sede do notificando, presumindo-se a notificação ao terceiro dia útil posterior ao do envio, devendo a presunção ser ilidida pelo notificando quando não lhe seja imputável o facto de a carta não ter sido recebida em data anterior.",
+    "source": "Código da Estrada",
+    "source_type": "official",
+    "jurisdiction": "Portugal",
+    "fine_type": null,
+    "legal_references": [
+      "135"
+    ],
+    "quality_score": 0.9,
+    "confidence_level": 1.0,
+    "tags": [
+      "via pública"
+    ],
+    "metadata": {
+      "file_source": "knowledge_base\\legal_articles\\artigo_135.txt",
+      "article_number": "135",
+      "source_file": "official_legal"
+    },
+    "created_date": "2025-11-11T18:36:57.090709",
+    "last_updated": "2025-11-11T18:36:57.090714",
+    "usage_count": 0
+  },
+  "6e00bc765aab": {
+    "entry_id": "6e00bc765aab",
+    "entry_type": "legal_article",
+    "title": "# Artigo 137.º — Defesa e contestação",
+    "content": "# Artigo 137.º — Defesa e contestação\n\n1 - O autuado pode, pessoalmente ou através de advogado, apresentar defesa escrita no prazo de 20 dias úteis a contar da notificação do auto de contraordenação.\n\n2 - A defesa deve ser fundamentada e conter:\na) A identificação do autuado;\nb) A indicação do auto a que se refere;\nc) A exposição dos factos e fundamentos de direito;\nd) O pedido;\ne) A assinatura do autuado ou do seu representante legal.\n\n3 - Na defesa podem ser alegados vícios do auto de contraordenação, a insuficiência ou a nulidade da prova, a inexistência do facto, a imputação incorreta, a não penalidade do facto, a prescrição ou a extintividade da responsabilidade por qualquer causa.\n\n4 - O prazo para a apresentação da defesa suspende o prazo para o pagamento voluntário da coima.",
+    "source": "Código da Estrada",
+    "source_type": "official",
+    "jurisdiction": "Portugal",
+    "fine_type": null,
+    "legal_references": [
+      "137"
+    ],
+    "quality_score": 0.9,
+    "confidence_level": 1.0,
+    "tags": [
+      "contraordenação",
+      "penalidade"
+    ],
+    "metadata": {
+      "file_source": "knowledge_base\\legal_articles\\artigo_137_defesa_contestacao.txt",
+      "article_number": "137",
+      "source_file": "official_legal"
+    },
+    "created_date": "2025-11-11T18:36:57.091012",
+    "last_updated": "2025-11-11T18:36:57.091016",
+    "usage_count": 0
+  },
+  "aa174cf45f37": {
+    "entry_id": "aa174cf45f37",
+    "entry_type": "legal_article",
+    "title": "# Artigo 48.º — Paragem e estacionamento proibidos",
+    "content": "# Artigo 48.º — Paragem e estacionamento proibidos\n\n1 - É proibido parar ou estacionar:\na) Nas bermas, faixas de rodagem ou pistas laterais quando a largura restante for inferior a 3 m, salvo em caso de força maior;\nb) Nas curvas e.change_de الأمور المنتظر في تغيير إذن الخطورة eller its;\nc) Nas change_de الأمور المنتظر في تغيير إذن الخطورة eller its;\nd) Em pontes, túneis e passagens inferiores ou superiores;\ne) Nos pontos da via em que a visibilidade seja reduzida, até à distância de pelo menos 100 m em cada sentido;\nf) Nas imediações de sinais luminosos de controlo de tráfego, a menos de 5 m antes destes sinais;\ng) Nas interseções e.change_de الأمور المنتظر في تغيير إذن الخطورة eller its;\nh) Sobre as marcaslines ou padrões da via, exceto as que destinam o estacionamento.\n\n2 - O estacionamento é proibido também nos locais em que tal resulte expressamente de sinalização específica.",
+    "source": "Código da Estrada",
+    "source_type": "official",
+    "jurisdiction": "Portugal",
+    "fine_type": "estacionamento",
+    "legal_references": [
+      "48"
+    ],
+    "quality_score": 0.9,
+    "confidence_level": 1.0,
+    "tags": [
+      "via pública"
+    ],
+    "metadata": {
+      "file_source": "knowledge_base\\legal_articles\\artigo_48_parking.txt",
+      "article_number": "48",
+      "source_file": "official_legal"
+    },
+    "created_date": "2025-11-11T18:36:57.091383",
+    "last_updated": "2025-11-11T18:36:57.091393",
+    "usage_count": 0
+  },
+  "657685393a80": {
+    "entry_id": "657685393a80",
+    "entry_type": "legal_article",
+    "title": "# Artigo 49.º — Estacionamento prolongado",
+    "content": "# Artigo 49.º — Estacionamento prolongado\n\n1 - É proibido o estacionamento de veículos na via pública, na mesma localização, por período superior a 30 dias consecutivos.\n\n2 - Decorrido o prazo estabelecido no número anterior, os serviços competentes podem ordenar a remoção do veículo e a sua Guarda em depósitos autorizados.\n\n3 - Os custos de remoção e guarda do veículo correm por conta do respetivo proprietário ou condutor.\n\n4 - O proprietário ou condutor pode, no prazo de 15 dias a contar da notificação, solicitar a devolução do veículo, mediante o pagamento dos respetivos custos e a apresentação dos documentos referidos no artigo 121.º\n\n5 - Decorrido o prazo estabelecido no número anterior sem que o proprietário ou condutor tenha procedido à devolução do veículo, este pode ser vendido em hasta pública.",
+    "source": "Código da Estrada",
+    "source_type": "official",
+    "jurisdiction": "Portugal",
+    "fine_type": "estacionamento",
+    "legal_references": [
+      "121",
+      "49"
+    ],
+    "quality_score": 0.9,
+    "confidence_level": 1.0,
+    "tags": [
+      "veículo",
+      "condutor",
+      "via pública"
+    ],
+    "metadata": {
+      "file_source": "knowledge_base\\legal_articles\\artigo_49_estacionamento_proibido.txt",
+      "article_number": "49",
+      "source_file": "official_legal"
+    },
+    "created_date": "2025-11-11T18:36:57.091835",
+    "last_updated": "2025-11-11T18:36:57.091840",
+    "usage_count": 0
+  },
+  "12c5f0e440af": {
+    "entry_id": "12c5f0e440af",
+    "entry_type": "legal_article",
+    "title": "# Artigo 85.º — Limites de velocidade",
+    "content": "# Artigo 85.º — Limites de velocidade\n\n1 - A velocidade máxima para veículos ligeiros de passageiros e mistos é de:\na) 120 km/h nas autoestradas e vias reservadas a automóveis;\nb) 90 km/h nas restantes vias, salvo nas situações previstas nas alíneas seguintes.\n\n2 - Nas vias urbanas, incluindo as vias com carácter urbano, a velocidade máxima é de:\na) 50 km/h, nas vias com dois sentidos de circulação e sem separador central;\nb) 60 km/h, nas restantes vias.\n\n3 - A velocidade pode ser reduzida por:\na) Características técnicas dos veículos;\nb) Condições do estado da via;\nc) Condições meteorológicas e ambientais;\nd) Densidade do trânsito;\ne) Sinalização específica.\n\n4 - Os condutores devem adaptar a velocidade às características técnicas dos veículos e às condições referidas no número anterior, de modo a não comprometer a segurança da circulação.\n\n5 - A velocidade deve ser tal que, em caso de necessidade de travagem súbita, o condutor possa parar o veículo dentro da distância de visibilidade disponível.\n\n6 - A redução da velocidade, na entrada das localidades, deve ser iniciada fora da área da localidade, mediante sinalização específica.",
+    "source": "Código da Estrada",
+    "source_type": "official",
+    "jurisdiction": "Portugal",
+    "fine_type": "velocidade",
+    "legal_references": [
+      "85"
+    ],
+    "quality_score": 0.9,
+    "confidence_level": 1.0,
+    "tags": [
+      "veículo",
+      "condutor",
+      "via pública"
+    ],
+    "metadata": {
+      "file_source": "knowledge_base\\legal_articles\\artigo_85_velocidade.txt",
+      "article_number": "85",
+      "source_file": "official_legal"
+    },
+    "created_date": "2025-11-11T18:36:57.092216",
+    "last_updated": "2025-11-11T18:36:57.092221",
+    "usage_count": 0
+  },
+  "872f42be437f": {
+    "entry_id": "872f42be437f",
+    "entry_type": "fine_example",
+    "title": "Exemplo: estacionamento - Rua Augusta, Lisboa",
+    "content": "Exemplo de multa real:\nTipo: estacionamento\nLocalização: Rua Augusta, Lisboa\nValor: 60.0 EUR\nAutoridade: Câmara Municipal de Lisboa\nResultado: contested_successfully\nEstratégia de defesa: Ilegibilidade da sinalização",
+    "source": "Contribuição da Comunidade",
+    "source_type": "user_contributed",
+    "jurisdiction": "Portugal",
+    "fine_type": "estacionamento",
+    "legal_references": [],
+    "quality_score": 0.6,
+    "confidence_level": 0.7,
+    "tags": [
+      "estacionamento",
+      "contested_successfully",
+      "real_case"
+    ],
+    "metadata": {
+      "fine_id": "fine_001",
+      "outcome": "contested_successfully",
+      "source_file": "user_contributions"
+    },
+    "created_date": "2025-11-11T18:36:57.092582",
+    "last_updated": "2025-11-11T18:36:57.092591",
+    "usage_count": 0
+  },
+  "80edeed50c68": {
+    "entry_id": "80edeed50c68",
+    "entry_type": "fine_example",
+    "title": "Exemplo: velocidade - A1 - Autoestrada do Norte",
+    "content": "Exemplo de multa real:\nTipo: velocidade\nLocalização: A1 - Autoestrada do Norte\nValor: 300.0 EUR\nAutoridade: GNR\nResultado: contest_rejected\nEstratégia de defesa: Equipamento de medição não calibrado",
+    "source": "Contribuição da Comunidade",
+    "source_type": "user_contributed",
+    "jurisdiction": "Portugal",
+    "fine_type": "velocidade",
+    "legal_references": [],
+    "quality_score": 0.6,
+    "confidence_level": 0.7,
+    "tags": [
+      "velocidade",
+      "contest_rejected",
+      "real_case"
+    ],
+    "metadata": {
+      "fine_id": "fine_002",
+      "outcome": "contest_rejected",
+      "source_file": "user_contributions"
+    },
+    "created_date": "2025-11-11T18:36:57.092633",
+    "last_updated": "2025-11-11T18:36:57.092639",
+    "usage_count": 0
+  },
+  "4ee1cacc5160": {
+    "entry_id": "4ee1cacc5160",
+    "entry_type": "fine_example",
+    "title": "Exemplo: documentos - Centro de Lisboa",
+    "content": "Exemplo de multa real:\nTipo: documentos\nLocalização: Centro de Lisboa\nValor: 120.0 EUR\nAutoridade: PSP\nResultado: contested_successfully\nEstratégia de defesa: Verificação posterior confirmou documentos válidos",
+    "source": "Contribuição da Comunidade",
+    "source_type": "user_contributed",
+    "jurisdiction": "Portugal",
+    "fine_type": "documentos",
+    "legal_references": [],
+    "quality_score": 0.6,
+    "confidence_level": 0.7,
+    "tags": [
+      "documentos",
+      "contested_successfully",
+      "real_case"
+    ],
+    "metadata": {
+      "fine_id": "fine_003",
+      "outcome": "contested_successfully",
+      "source_file": "user_contributions"
+    },
+    "created_date": "2025-11-11T18:36:57.092662",
+    "last_updated": "2025-11-11T18:36:57.092666",
+    "usage_count": 0
+  },
+  "2ea55457ef83": {
+    "entry_id": "2ea55457ef83",
+    "entry_type": "community_tip",
+    "title": "Estratégia para estacionamento em zonas AEDL",
+    "content": "Estratégia bem-sucedida para contestar multas de estacionamento em zonas AEDL (Área de Estacionamento de Duração Limitada):\n\n1. Verificar se o parquímetro estava funcional\n2. Fotografar a sinalização existente \n3. Verificar se o tempo de паркемнто não excede o limite\n4. Confirmar se o pagamento foi efetuado corretamente\n5. Verificar se o ticket está visível no veículo\n\nCasos de sucesso: 15 de 20 multas contestadas foram canceladas.",
+    "source": "Comunidade FineHero",
+    "source_type": "community_verified",
+    "jurisdiction": "Portugal",
+    "fine_type": "estacionamento",
+    "legal_references": [],
+    "quality_score": 0.75,
+    "confidence_level": 0.8,
+    "tags": [
+      "estacionamento",
+      "AEDL",
+      "estratégia",
+      "sucesso"
+    ],
+    "metadata": {
+      "source_file": "community_verified",
+      "verification_level": "community_approved"
+    },
+    "created_date": "2025-11-11T18:36:57.092994",
+    "last_updated": "2025-11-11T18:36:57.093002",
+    "usage_count": 0
+  },
+  "aa301fd517a1": {
+    "entry_id": "aa301fd517a1",
+    "entry_type": "community_tip",
+    "title": "Contestação de multas de velocidade em autoestradas",
+    "content": "Pontos-chave para contestar multas de velocidade em autoestradas:\n\n1. Verificar calibração do radar (equipamentos devem ser calibrados a cada 6 meses)\n2. Confirmar sinalização da velocidade limite\n3. Verificar condições meteorológicas na altura\n4. Documentar problemas técnicos do equipamento\n5. Solicitar certificado de calibração do equipamento\n\nTaxa de sucesso: 40% das contestações são aprovadas.",
+    "source": "Comunidade FineHero",
+    "source_type": "community_verified",
+    "jurisdiction": "Portugal",
+    "fine_type": "velocidade",
+    "legal_references": [],
+    "quality_score": 0.75,
+    "confidence_level": 0.8,
+    "tags": [
+      "velocidade",
+      "autoestrada",
+      "radar",
+      "calibração"
+    ],
+    "metadata": {
+      "source_file": "community_verified",
+      "verification_level": "community_approved"
+    },
+    "created_date": "2025-11-11T18:36:57.093030",
+    "last_updated": "2025-11-11T18:36:57.093035",
+    "usage_count": 0
+  },
+  "8f737003f28a": {
+    "entry_id": "8f737003f28a",
+    "entry_type": "community_tip",
+    "title": "Documentos em falta - defesa técnica",
+    "content": "Estratégias para multas relacionadas com documentos em falta:\n\n1. Verificar se os documentos estavam realmente em falta\n2. Confirmar que o veículo estava devidamente assegurado\n3. Verificar se o seguro estava válido na data\n4. Documentar que os documentos foram apresentados posteriormente\n5. Verificar se a notificação foi corretamente entregue\n\nMuitos casos são resolvidos com apresentação posterior dos documentos.",
+    "source": "Comunidade FineHero",
+    "source_type": "community_verified",
+    "jurisdiction": "Portugal",
+    "fine_type": "documentos",
+    "legal_references": [],
+    "quality_score": 0.75,
+    "confidence_level": 0.8,
+    "tags": [
+      "documentos",
+      "seguro",
+      "apresentação posterior"
+    ],
+    "metadata": {
+      "source_file": "community_verified",
+      "verification_level": "community_approved"
+    },
+    "created_date": "2025-11-11T18:36:57.093052",
+    "last_updated": "2025-11-11T18:36:57.093056",
+    "usage_count": 0
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "fontes": [
+    {
+      "id": "DRE-001",
+      "titulo": "Código da Estrada - Diário da República",
+      "url": "https://dre.pt/",
+      "data_acesso": "2025-11-11",
+      "tipo": "Legislação Nacional",
+      "idioma": "pt-PT"
+    },
+    {
+      "id": "DRE-002", 
+      "titulo": "Decreto-Lei 81/2006 - Regulamentos de Estacionamento",
+      "url": "https://dre.pt/",
+      "data_acesso": "2025-11-11",
+      "tipo": "Legislação Nacional",
+      "idioma": "pt-PT"
+    },
+    {
+      "id": "LIS-001",
+      "titulo": "Câmara Municipal de Lisboa - Regulamento de Estacionamento",
+      "url": "https://lisboa.pt/",
+      "data_acesso": "2025-11-11", 
+      "tipo": "Regulamento Municipal",
+      "idioma": "pt-PT"
+    },
+    {
+      "id": "POR-001",
+      "titulo": "Câmara Municipal do Porto - Mobilidade e Transportes",
+      "url": "https://www.porto.pt/",
+      "data_acesso": "2025-11-11",
+      "tipo": "Regulamento Municipal",
+      "idioma": "pt-PT"
+    }
+  ],
+  "artigos": {
+    "estacionamento_paragem": [
+      {
+        "id": "CE-ART-048",
+        "numero": "48.º",
+        "titulo": "Paragem e Estacionamento Proibidos",
+        "tipoInfra": "Estacionamento / Paragem",
+        "nivel": "Lei (Código da Estrada)",
+        "faixaMulta": "€30 - €120",
+        "pontosPerdidos": "0 pontos",
+        "resumo": "O artigo 48.º do Código da Estrada estabelece as locais onde é terminantemente proibido parar ou estacionar veículos. A norma visa garantir a segurança rodoviária e a fluidez do trânsito, identificando situações específicas onde a paragem ou estacionamento poderiam comprometer a visibilidade, criar obstáculos ou constituir perigo para outros utentes da via.",
+        "pontosChave": "Locais Proibidos: Bermas e faixas de rodagem com largura insuficiente (menos de 3m), Curvas com visibilidade comprometida, Pontes túneis e passagens, Zonas com visibilidade reduzida (100m em cada sentido), Proximidade de semáforos (menos de 5m), Interseções, Sobre marcas da via, Locais com sinalização específica. Condições Especiais: Exceção por força maior, Sinalização específica prevalece.",
+        "razoesContestacaoComum": "1. Força Maior (emergência, avaria súbita, estado de saúde). 2. Questões de visibilidade e medições. 3. Problemas de proximidade de semáforos. 4. Falta de sinalização específica. 5. Condições meteorológicas adversas. 6. Vícios do Auto (identificação, fundamentação, competência territorial).",
+        "url_fonte": "https://dre.pt/",
+        "data_acesso": "2025-11-11"
+      },
+      {
+        "id": "CE-ART-049",
+        "numero": "49.º",
+        "titulo": "Estacionamento Prolongado",
+        "tipoInfra": "Estacionamento / Paragem",
+        "nivel": "Lei (Código da Estrada)",
+        "faixaMulta": "€30 - €150",
+        "pontosPerdidos": "0 pontos",
+        "resumo": "O artigo 49.º do Código da Estrada estabelece a proibição de estacionamento prolongado na via pública por mais de 30 dias consecutivos no mesmo local. Esta norma visa prevenir o abandono de veículos e garantir a rotatividade do estacionamento urbano, evitando que veículos estacionados indefinidamente ocupem espaços públicos necessários para outros cidadãos.",
+        "pontosChave": "Prazo Limite: 30 dias consecutivos no mesmo local. Procedimentos após prazo: Notificação pelos serviços competentes, Possibilidade de remoção para depósitos autorizados, Custos de remoção e guarda a cargo do proprietário/condutor. Direitos do Proprietário: Prazo de 15 dias para solicitar devolução, Requer pagamento de custos, Necessário apresentar documentos do artigo 121.º. Consequências: Venda em hasta pública após 15 dias sem reclamação.",
+        "razoesContestacaoComum": "1. Contagem de dias (questionar se foram consecutivos). 2. Definição спорная de 'mesma localização'. 3. Força Maior/Ausência (proprietário ausente, situação médica, problemas mecânicos). 4. Vícios do Procedimento (notificação irregular, falta de notificação prévia). 5. Direitos de Defesa (prazo insuficiente). 6. Questões de documentação. 7. Contestação do processo de venda em hasta pública.",
+        "url_fonte": "https://dre.pt/",
+        "data_acesso": "2025-11-11"
+      }
+    ],
+    "velocidade": [
+      {
+        "id": "CE-ART-085",
+        "numero": "85.º",
+        "titulo": "Limites de Velocidade",
+        "tipoInfra": "Velocidade",
+        "nivel": "Lei (Código da Estrada)",
+        "faixaMulta": "€60 - €2.500",
+        "pontosPerdidos": "2-6 pontos",
+        "resumo": "O artigo 85.º do Código da Estrada estabelece os limites gerais de velocidade para veículos ligeiros, diferenciando entre autoestradas, vias interurbanas e zonas urbanas. A norma estabelece velocidades máximas de 120 km/h em autoestradas, 90 km/h em vias gerais, e 50-60 km/h em vias urbanas. O artigo também reconhece a possibilidade de redução da velocidade por fatores técnicos, ambientais e de segurança.",
+        "pontosChave": "Limites por Tipo de Via: Autoestradas e Vias Reservadas (120 km/h), Vias Interurbanas Gerais (90 km/h), Vias Urbanas (50 km/h com dois sentidos, 60 km/h restantes). Fatores de Redução Obrigatória: Características técnicas do veículo, Condições da via, Condições meteorológicas, Densidade do trânsito, Sinalização específica. Princípios de Segurança: Adaptação às condições, Distância de visibilidade, Redução gradual.",
+        "razoesContestacaoComum": "1. Medição de velocidade (erro de calibração, condições de medição, posicionamento irregular). 2. Condições especiais (meteorológicas adversas, estado da via, trânsito denso, emergência médica). 3. Categoria de via спорная (classificação, sinalização contraditória). 4. Condições técnicas do veículo (problemas de travagem, avaria mecánica). 5. Necessidade de segurança (evitar acidentes, manobras de emergência). 6. Defeitos de procedimento. 7. Circunstâncias atenuantes.",
+        "url_fonte": "https://dre.pt/",
+        "data_acesso": "2025-11-11"
+      },
+      {
+        "id": "CE-ART-105",
+        "numero": "105.º",
+        "titulo": "Semáforos (Sinais Luminosos)",
+        "tipoInfra": "Velocidade (Controlo de Trânsito)",
+        "nivel": "Lei (Código da Estrada)",
+        "faixaMulta": "€120 - €600",
+        "pontosPerdidos": "3 pontos",
+        "resumo": "O artigo 105.º do Código da Estrada estabelece o significado e as regras de obediência aos sinais luminosos (semáforos) que regulam o trânsito. A norma define claramente o significado de cada cor (vermelha, vermelha intermitente, âmbar e verde) e estabelece as obrigações dos condutores, incluindo o dever de verificar a segurança antes de circular quando a luz verde se acende.",
+        "pontosChave": "Significado das Luzes: Luz Vermelha Constante (paragem obrigatória), Luz Vermelha Intermitente (paragem antes do atravessamento), Luz Âmbar (advertência, preparar-se para parar), Luz Verde (autorização com dever de certificação de segurança). Situações Especiais: Semáforos com setas (prevalência da indicação), Avarias (aplicação do artigo 104.º).",
+        "razoesContestacaoComum": "1. Problemas de visibilidade (oclusão do sinal, condições meteorológicas, falta de iluminação). 2. Estado do semáforo (avaria técnica, luzes confundíveis, sincronização defeituosa). 3. Dúvidas sobre o momento da mudança (precisão temporal, tempo de reação insuficiente). 4. Interpretação das setas (não claramente visíveis, conflito entre indicações). 5. Condições de segurança (tráfego intenso, emergência). 6. Problemas de localização. 7. Vícios do procedimento.",
+        "url_fonte": "https://dre.pt/",
+        "data_acesso": "2025-11-11"
+      }
+    ],
+    "inspecao_periodica_obrigatoria": [],
+    "falta_documentos_matricula": [
+      {
+        "id": "CE-ART-121",
+        "numero": "121.º",
+        "titulo": "Documentos e Equipamentos",
+        "tipoInfra": "Falta de documentos / matrícula",
+        "nivel": "Lei (Código da Estrada)",
+        "faixaMulta": "€30 - €300",
+        "pontosPerdidos": "0 pontos",
+        "resumo": "O artigo 121.º do Código da Estrada estabelece as obrigações dos condutores no que respeita à exibição de documentos e à manutenção de equipamentos obrigatórios nos veículos. A norma determina que todos os veículos devem possuir os documentos legalmente exigíveis e que o condutor deve poder exhibir imediatamente documentos específicos como carta de condução, documento de propriedade, seguro, imposto único de circulação e comprovativos fiscais.",
+        "pontosChave": "Documentos Obrigatórios: Carta de condução válida, Documento de propriedade ou disponibilidade, Certificado de seguro válido, Comprovativo do IUC quando devido, Comprovativos de taxas fiscais. Equipamentos Obrigatórios: Sinais luminosos/sonoros/refletores, Espelho retrovisor interno, Cintos de segurança, Dispositivos de emergência. Estado dos Equipamentos: Condições de funcionamento adequadas, Manutenção regular.",
+        "razoesContestacaoComum": "1. Documentos esquecidos ou temporariamente indisponíveis (esquecimento, problemas de renovação, tempo insuficiente). 2. Problemas com seguro (vigência por iniciar, renovação pendente). 3. Questões de propriedade (compra em processo, transmissão intermédia). 4. Equipamentos técnicos (defeituosos durante viagem). 5. Problemas de licenciamento (IUC por pagar, taxas municipais). 6. Documentos em língua estrangeira (UE válidos). 7. Vícios do procedimento. 8. Circunstâncias especiais.",
+        "url_fonte": "https://dre.pt/",
+        "data_acesso": "2025-11-11"
+      }
+    ],
+    "poluicao_emissoes": [],
+    "defesa_contestacao": [
+      {
+        "id": "CE-ART-135",
+        "numero": "135.º",
+        "titulo": "Formas de Notificação",
+        "tipoInfra": "Procedimental/Defesa (Processo Administrativo)",
+        "nivel": "Lei (Código da Estrada)",
+        "faixaMulta": "N/A (Artigo procedimental)",
+        "pontosPerdidos": "N/A (Artigo procedimental)",
+        "resumo": "O artigo 135.º do Código da Estrada estabelece as formas válidas de notificação no âmbito do processo de contraordenação rodoviária. A norma define quatro métodos de notificação: contacto pessoal, carta registada, carta simples e via eletrónica. O artigo também estabelece presunções de notificação e permite ilidir essas presunções em determinadas circunstâncias.",
+        "pontosChave": "Formas de Notificação: Contacto Pessoal (no local da autuação, pelo agente fiscalizador), Carta Registada (com aviso de receção), Carta Simples (presunção ao terceiro dia útil), Via Eletrónica (caixa postal eletrónica). Princípios Processuais: Presunção de notificação (terceiro dia útil), Dever de colaboração (atualização de dados).",
+        "razoesContestacaoComum": "1. Notificação irregular (morada incorreta, ausência do destinatário). 2. Problemas com via eletrónica (email inexistente, problemas técnicos). 3. Contagem de prazos (discordância na data, fins de semana não considerados). 4. Contacto pessoal deficiente (identificação insuficiente, horário inadequado). 5. Problemas com carta registada (ausência de aviso de receção). 6. Situações de emergência (hospitalização, viagem urgente). 7. Questões de capacidade (menor, incapacidade). 8. Vícios do procedimento.",
+        "url_fonte": "https://dre.pt/",
+        "data_acesso": "2025-11-11"
+      },
+      {
+        "id": "CE-ART-137",
+        "numero": "137.º",
+        "titulo": "Defesa e Contestação",
+        "tipoInfra": "Procedimental/Direito de Defesa",
+        "nivel": "Lei (Código da Estrada)",
+        "faixaMulta": "N/A (Artigo sobre direitos processuais)",
+        "pontosPerdidos": "N/A (Artigo sobre direitos processuais)",
+        "resumo": "O artigo 137.º do Código da Estrada estabelece o direito fundamental de defesa no processo de contraordenação rodoviária. A norma garante ao autuado o prazo de 20 dias úteis para apresentar defesa escrita, pessoalmente ou através de advogado, definindo os elementos obrigatórios da defesa e os fundamentos que podem ser invocados.",
+        "pontosChave": "Direito de Defesa: Prazo de 20 dias úteis, Modalidades (pessoal, advogado, representante). Elementos Obrigatórios: Identificação completa, Referência ao auto, Fundamentação fáctica e jurídica, Pedido específico, Assinatura. Fundamentos Admissíveis: Vícios do auto, Insuficiência da prova, Inexistência do facto, Imputação incorreta, Não penalidade, Prescrição, Extintividade da responsabilidade.",
+        "razoesContestacaoComum": "1. Vícios procedimentais (auto elaborado por autoridade incompetente, notificação irregular). 2. Problemas de prova (ausência de prova material, registos eletrónicos não fiáveis). 3. Questões factuais (negação dos factos, versão alternativa). 4. Erros de identificação (veículo não era o infrator, confusão com viatura similar). 5. Questões jurídicas (interpretação errónea, aplicação incorreta). 6. Circunstâncias atenuantes (primeira infração, situação económica). 7. Problemas de quantificação. 8. Questões de prescrição.",
+        "url_fonte": "https://dre.pt/",
+        "data_acesso": "2025-11-11"
+      }
+    ],
+    "regulamentos_municipais": [
+      {
+        "id": "CE-REG-LIS-001",
+        "numero": "Regulamento Municipal",
+        "titulo": "Estacionamento para Pessoa com Mobilidade Condicionada",
+        "tipoInfra": "Estacionamento/Paragem (Regulamento Municipal)",
+        "nivel": "Regulamento Municipal",
+        "faixaMulta": "N/A (Regime de autorização, não coimas)",
+        "pontosPerdidos": "N/A (Não aplicável)",
+        "resumo": "Este regulamento municipal de Lisboa estabelece o procedimento e as condições para a autorização de lugares de estacionamento reservados para pessoas com mobilidade condicionada. O sistema visa garantir a acessibilidade e mobilidade urbana para pessoas com deficiência, estabelecendo um regime de autorizações municipais de 5 anos, renováveis, com benefícios específicos como isenção de tarifas de estacionamento.",
+        "pontosChave": "Critérios de Elegibilidade: Mobilidade condicionada comprovada, Residência/local de trabalho no concelho de Lisboa, Não possuírem lugares próprios no imóvel, Solicitação formal à Câmara. Benefícios Garantidos: Lugar sinalizado perto da residência/trabalho, Isenção de tarifas em lugares não reservados, Válido por 5 anos renováveis, Reconhecimento nacional do cartão IMT. Sistema de Obrigações: Sinalização adequada, Fiscalização efetiva, Aplicação do Regulamento Geral.",
+        "razoesContestacaoComum": "1. Inelegibilidade geográfica (residência fora do concelho, local de trabalho fora da jurisdição). 2. Questões de mobilidade (avaliação médica insuficiente, situação temporária). 3. Problemas com lugares próprios (existência não declarada, conversão para outros fins). 4. Procedimentos administrativos (falta de documentos, prazos não cumpridos). 5. Questões de sinalização (falta de sinalização, posicionamento inadequado). 6. Uso indevido do cartão (por pessoa não autorizada, veículo não destinado). 7. Fiscalização e contraordenação. 8. Questões de renovação.",
+        "url_fonte": "https://lisboa.pt/",
+        "data_acesso": "2025-11-11"
+      }
+    ]
+  },
+  "modelosCartas": [],
+  "metadados": {
+    "versao": "1.0",
+    "data_criacao": "2025-11-11",
+    "total_artigos": 7,
+    "idioma": "pt-PT",
+    "fonte": "FineHero Legal Dataset",
+    "descricao": "Dataset estruturado de legislação portuguesa sobre contraordenações rodoviárias para sistema FineHero AI",
+    "autor": "FineHero Legal Research Team",
+    "licenca": "Uso educacional e de pesquisa",
+    "estatisticas": {
+      "total_fontes": 4,
+      "total_artigos": 7,
+      "distribuicao_por_tipo": {
+        "estacionamento_paragem": 2,
+        "velocidade": 2,
+        "falta_documentos_matricula": 1,
+        "defesa_contestacao": 2,
+        "regulamentos_municipais": 1,
+        "inspecao_periodica_obrigatoria": 0,
+        "poluicao_emissoes": 0
+      }
+    }
+  }
+}
