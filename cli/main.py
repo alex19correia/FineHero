@@ -2,6 +2,12 @@ import argparse
 import os
 import json
 from datetime import datetime
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
 from backend.services.pdf_processor import PDFProcessor
 from backend.services.defense_generator import DefenseGenerator

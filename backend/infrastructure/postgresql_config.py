@@ -9,8 +9,7 @@ from typing import Optional, Dict, Any
 from sqlalchemy import create_engine, MetaData, event
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import sessionmaker
-from sqla
-lchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.pool import NullPool
 from contextlib import contextmanager
 import logging
@@ -119,7 +118,13 @@ class PostgreSQLConfig:
         
         # PostGIS-specific settings
         if self.enable_postgis:
-            config["connect_args"]["options"] = "-c search_path=public,postgis"
+            config.setdefault("connect_args", {})
+            existing_options = config["connect_args"].get("options", "")
+            postgis_option = "-c search_path=public,postgis"
+            if existing_options:
+                config["connect_args"]["options"] = f"{existing_options} {postgis_option}"
+            else:
+                config["connect_args"]["options"] = postgis_option
         
         return config
     
@@ -169,7 +174,7 @@ class PostgreSQLConfig:
         
         # Set PostgreSQL-specific optimizations
         @event.listens_for(engine, "connect")
-        def set_sqlite_pragma(dbapi_connection, connection_record):
+        def set_postgres_session_settings(dbapi_connection, connection_record):
             """Set PostgreSQL performance optimizations."""
             if hasattr(dbapi_connection, 'cursor'):
                 cursor = dbapi_connection.cursor()

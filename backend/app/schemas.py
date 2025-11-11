@@ -49,3 +49,11 @@ class Defense(DefenseBase):
 
     class Config:
         orm_mode = True
+
+class DefenseWithMetadata(Defense):
+    """
+    Schema for a defense with generation metadata.
+    """
+    generation_time: float
+    ai_used: bool
+    template_fallback: bool

@@ -1,0 +1,11 @@
+# Untitled Legal Document
+
+**Source:** Crawl4AI
+**URL:** https://www.porto.pt/
+**Discovery Method:** AI-optimized crawling
+**Quality Score:** 0.15
+**Discovery Date:** 2025-11-11T20:55:56.880107
+
+## Content
+
+[Crawl4AI would extract Porto municipal parking rules from https://www.porto.pt/]

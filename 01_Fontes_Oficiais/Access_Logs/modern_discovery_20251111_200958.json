@@ -1,0 +1,26 @@
+{
+  "discovery_timestamp": "2025-11-11T20:09:58.957208",
+  "discovery_method": "Modern Content Discovery (Crawl4AI + Firecrawl)",
+  "processing_results": {
+    "total_processed": 8,
+    "successfully_parsed": 8,
+    "new_legal_articles": 6,
+    "new_fine_examples": 1,
+    "quality_scores": [
+      0.1,
+      0.0,
+      0.0,
+      0.30000000000000004,
+      0.2,
+      0.25,
+      0.25,
+      0.30000000000000004
+    ],
+    "errors": [],
+    "knowledge_base_entries": 13
+  },
+  "tools_used": {
+    "crawl4ai": true,
+    "firecrawl": null
+  }
+}

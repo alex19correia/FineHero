@@ -14,6 +14,7 @@ import time
 import re
 from urllib.parse import urljoin, urlparse
 import os
+from typing import List, Dict, Any, Optional
 
 class PortugueseAppealTemplatesScraper:
     def __init__(self):
@@ -57,60 +58,15 @@ class PortugueseAppealTemplatesScraper:
             ]
         }
 
-    def search_duckduckgo(self, query, max_results=10):
-        """Search using DuckDuckGo's instant answer API"""
-        try:
-            url = f"https://api.duckduckgo.com/?q={query}&format=json&no_html=1&skip_disambig=1"
-            response = self.session.get(url, timeout=10)
-            response.raise_for_status()
-            
-            data = response.json()
-            results = []
-            
-            # Extract relevant results
-            if 'RelatedTopics' in data:
-                for topic in data['RelatedTopics'][:max_results]:
-                    if isinstance(topic, dict) and 'Text' in topic:
-                        results.append({
-                            'title': topic.get('Text', ''),
-                            'url': topic.get('FirstURL', ''),
-                            'snippet': topic.get('Text', ''),
-                            'source': 'duckduckgo'
-                        })
-            
-            return results
-        except Exception as e:
-            print(f"Error searching DuckDuckGo for '{query}': {e}")
-            return []
 
-    def search_google_uncached(self, query, max_results=10):
-        """Google search via textise dot iitty (fallback method)"""
-        try:
-            # Using textise dot iitty as a Google proxy
-            url = f"https://duckduckgo.com/?q={query}"
-            response = self.session.get(url, timeout=10)
-            response.raise_for_status()
-            
-            soup = BeautifulSoup(response.content, 'html.parser')
-            results = []
-            
-            # Extract links and titles
-            for link in soup.find_all('a', href=True)[:max_results]:
-                href = link.get('href')
-                if href and any(domain in href.lower() for domain in ['portugal', 'ordemdosadvogados', 'juridico', 'co.pt', 'pt']):
-                    results.append({
-                        'title': link.get_text().strip(),
-                        'url': href,
-                        'snippet': link.get_text().strip(),
-                        'source': 'duckduckgo_proxy'
-                    })
-            
-            return results
-        except Exception as e:
-            print(f"Error with Google proxy search for '{query}': {e}")
-            return []
 
-    def extract_template_content(self, url):
+
+
+
+
+
+
+    def extract_template_content(self, url: str) -> Optional[Dict[str, Any]]:
         """Extract potential template content from a webpage"""
         try:
             response = self.session.get(url, timeout=15)
@@ -122,21 +78,45 @@ class PortugueseAppealTemplatesScraper:
             for script in soup(["script", "style"]):
                 script.decompose()
             
-            # Get text content
-            text = soup.get_text()
+            # Initialize content and score
+            extracted_content = ""
+            content_score = 0
             
-            # Look for Portuguese legal terms that indicate appeal templates
-            legal_indicators = [
-                'carta recurso', 'modelo recurso', 'template', 'modelo', 
-                'contestação', 'defesa', 'apelo', 'infração', 'multa',
-                'velocidade', 'estacionamento', 'trânsito'
-            ]
+            # Look for specific keywords in proximity or within structured tags
             
-            content_score = sum(1 for indicator in legal_indicators if indicator.lower() in text.lower())
+            # Prioritize content within <pre>, <code>, or <textarea> tags
+            for tag in soup.find_all(['pre', 'code', 'textarea']):
+                tag_text = tag.get_text(strip=True)
+                if any(keyword in tag_text.lower() for keyword in ['modelo de recurso', 'carta de contestação', 'requerimento']):
+                    extracted_content = tag_text
+                    content_score += 5 # High score for structured template-like content
+                    break # Found a strong candidate, no need to check other tags
+            
+            # If no strong candidate found in structured tags, search in general text
+            if not extracted_content:
+                text = soup.get_text()
+                
+                # Look for Portuguese legal terms that indicate appeal templates
+                legal_indicators = [
+                    'carta recurso', 'modelo recurso', 'template', 'modelo', 
+                    'contestação', 'defesa', 'apelo', 'infração', 'multa',
+                    'velocidade', 'estacionamento', 'trânsito', 'código da estrada',
+                    'artigo', 'decreto-lei', 'portaria', 'formulário', 'requerimento',
+                    'impugnação', 'coima', 'contraordenação', 'lei', 'regulamento'
+                ]
+                
+                # Look for combinations of keywords
+                if re.search(r'modelo\s+de\s+recurso', text.lower()) or \
+                   re.search(r'carta\s+de\s+contestação', text.lower()) or \
+                   re.search(r'requerimento\s+de\s+impugnação', text.lower()):
+                    content_score += 3
+                
+                content_score += sum(1 for indicator in legal_indicators if indicator.lower() in text.lower())
+                extracted_content = text
             
             return {
                 'url': url,
-                'content': text[:2000],  # First 2000 characters
+                'content': extracted_content[:4000],  # First 4000 characters for more context
                 'content_score': content_score,
                 'found_at': time.strftime('%Y-%m-%d %H:%M:%S')
             }
@@ -144,54 +124,91 @@ class PortugueseAppealTemplatesScraper:
             print(f"Error extracting content from {url}: {e}")
             return None
 
-    def scrape_target_websites(self):
-        """Scrape target Portuguese legal websites directly"""
-        templates = []
-        
-        for category, websites in self.target_sources.items():
-            print(f"\nScraping {category.replace('_', ' ').title()}...")
-            
-            for website in websites:
-                try:
-                    print(f"  Accessing {website}...")
-                    response = self.session.get(website, timeout=10)
-                    response.raise_for_status()
-                    
-                    soup = BeautifulSoup(response.content, 'html.parser')
-                    
-                    # Look for links to templates or documents
-                    template_links = []
-                    for link in soup.find_all('a', href=True):
-                        href = link.get('href')
-                        text = link.get_text().lower()
-                        
-                        # Check if link contains relevant keywords
-                        if any(keyword in text for keyword in ['template', 'modelo', 'carta', 'recurso', 'documentos']):
-                            full_url = urljoin(website, href)
-                            template_links.append({
-                                'title': link.get_text().strip(),
-                                'url': full_url,
-                                'context': 'target_website'
-                            })
-                    
-                    # Extract content from template links
-                    for template_link in template_links[:5]:  # Limit to 5 per site
-                        content = self.extract_template_content(template_link['url'])
-                        if content and content['content_score'] >= 2:
-                            templates.append({
-                                **template_link,
-                                **content,
-                                'category': category
-                            })
-                        time.sleep(2)  # Be respectful with requests
-                        
-                except Exception as e:
-                    print(f"    Error accessing {website}: {e}")
-                    continue
-        
-        return templates
 
-    def conduct_searches(self):
+
+    def search_duckduckgo(self, query: str, max_results: int) -> List[Dict]:
+        """
+        Perform a DuckDuckGo search and return results.
+        
+        Args:
+            query: The search query string
+            max_results: Maximum number of results to return
+            
+        Returns:
+            A list of result dictionaries with 'title', 'url', and 'snippet' keys
+        """
+        try:
+            from duckduckgo_search import DDGS
+            
+            results = []
+            ddgs = DDGS()
+            
+            # Perform the search
+            search_results = ddgs.text(query, max_results=max_results)
+            
+            # Convert results to the expected format
+            for result in search_results:
+                results.append({
+                    'title': result.get('title', ''),
+                    'url': result.get('href', ''),
+                    'snippet': result.get('body', '')
+                })
+            
+            return results
+            
+        except ImportError:
+            # Fallback to HTTP-based search if duckduckgo_search is not installed
+            print(f"Note: duckduckgo_search package not found, attempting HTTP fallback for '{query}'")
+            return self._search_duckduckgo_http(query, max_results)
+        except Exception as e:
+            print(f"Error searching DuckDuckGo for '{query}': {e}")
+            return []
+
+    def _search_duckduckgo_http(self, query: str, max_results: int) -> List[Dict]:
+        """
+        Fallback HTTP-based DuckDuckGo search when the package is unavailable.
+        
+        Args:
+            query: The search query string
+            max_results: Maximum number of results to return
+            
+        Returns:
+            A list of result dictionaries with 'title', 'url', and 'snippet' keys
+        """
+        try:
+            # DuckDuckGo HTML search endpoint
+            url = "https://duckduckgo.com/html/"
+            params = {'q': query}
+            
+            response = self.session.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            results = []
+            
+            # Parse DuckDuckGo HTML results
+            for result in soup.find_all('div', class_='result'):
+                if len(results) >= max_results:
+                    break
+                
+                title_elem = result.find('a', class_='result__a')
+                snippet_elem = result.find('a', class_='result__snippet')
+                
+                if title_elem and snippet_elem:
+                    results.append({
+                        'title': title_elem.get_text(strip=True),
+                        'url': title_elem.get('href', ''),
+                        'snippet': snippet_elem.get_text(strip=True)
+                    })
+            
+            return results
+            
+        except Exception as e:
+            print(f"Error in HTTP fallback search for '{query}': {e}")
+            return []
+
+    def conduct_searches(self) -> List[Dict]:
+
         """Conduct searches for all specified terms"""
         print("Starting web research for Portuguese traffic fine appeal templates...")
         print(f"Research Date: {time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -212,10 +229,43 @@ class PortugueseAppealTemplatesScraper:
         
         return all_results
 
-    def save_results(self, templates, search_results):
+    def process_search_results_for_templates(self, search_results: List[Dict]) -> List[Dict]:
+        """
+        Iterate through search results, filter for relevant URLs, and extract template content.
+        """
+        templates = []
+        processed_urls = set()
+        
+        print("\nProcessing search results for potential templates...")
+        
+        for result in search_results:
+            url = result.get('url')
+            if not url or url in processed_urls:
+                continue
+            
+            # Filter for relevant domains (e.g., .pt, legal-sounding domains)
+            parsed_url = urlparse(url)
+            if not parsed_url.netloc.endswith('.pt') and \
+               not any(keyword in parsed_url.netloc for keyword in ['advogados', 'juridico', 'lei', 'governo', 'multas', 'contrafine']):
+                continue # Skip irrelevant domains
+            
+            print(f"  Attempting to extract content from: {url}")
+            content_data = self.extract_template_content(url)
+            
+            if content_data and content_data['content_score'] >= 2: # Threshold for quality
+                templates.append({
+                    **result,
+                    **content_data,
+                    'category': 'search_result_template'
+                })
+                processed_urls.add(url)
+            time.sleep(1) # Be respectful
+            
+        return templates
+
+    def save_results(self, templates: List[Dict], search_results: List[Dict]):
         """Save all results to files"""
         
-        # Save detailed templates
         os.makedirs('portuguese_templates_research', exist_ok=True)
         
         with open('portuguese_templates_research/appeal_templates.json', 'w', encoding='utf-8') as f:
@@ -224,14 +274,13 @@ class PortugueseAppealTemplatesScraper:
         with open('portuguese_templates_research/search_results.json', 'w', encoding='utf-8') as f:
             json.dump(search_results, f, ensure_ascii=False, indent=2)
         
-        # Create summary report
         self.create_summary_report(templates, search_results)
         
         print(f"\nResults saved to 'portuguese_templates_research/' directory")
         print(f"Total templates found: {len(templates)}")
         print(f"Total search results: {len(search_results)}")
 
-    def create_summary_report(self, templates, search_results):
+    def create_summary_report(self, templates: List[Dict], search_results: List[Dict]):
         """Create a comprehensive summary report"""
         
         report = f"""# Portuguese Traffic Fine Appeal Letter Templates Research Report
@@ -242,45 +291,33 @@ class PortugueseAppealTemplatesScraper:
 
 ## Executive Summary
 
-This research aimed to find and collect 5-10 high-quality formal appeal letters for Portuguese traffic fines from publicly available sources.
+This research aimed to find and collect high-quality formal appeal letters for Portuguese traffic fines from publicly available sources, primarily through web search.
 
 ### Search Strategy
 - **Search Terms Used:** {', '.join(self.search_terms)}
-- **Target Source Categories:** Legal professionals, Government portals, Law firms, Academic resources
 - **Content Focus:** Diverse violation types (estacionamento, velocidade, documents, etc.)
 
 ## Results Summary
 
 ### Templates Found: {len(templates)}
-### Search Results: {len(search_results)}
+### Search Results Processed: {len(search_results)}
 
 ## Detailed Findings
 
-### Templates by Category
+### Templates Collected
 """
         
-        # Categorize templates
-        categories = {}
-        for template in templates:
-            category = template.get('category', 'unknown')
-            if category not in categories:
-                categories[category] = []
-            categories[category].append(template)
-        
-        for category, cat_templates in categories.items():
-            report += f"\n#### {category.replace('_', ' ').title()} ({len(cat_templates)} templates)\n"
-            for i, template in enumerate(cat_templates, 1):
-                report += f"""
+        for i, template in enumerate(templates, 1):
+            report += f"""
 {i}. **{template.get('title', 'No title')}**
    - URL: {template.get('url', 'N/A')}
    - Content Score: {template.get('content_score', 0)}/10
    - Found: {template.get('found_at', 'N/A')}
-   - Context: {template.get('context', 'N/A')}
+   - Category: {template.get('category', 'N/A')}
 """
         
         report += "\n## Raw Template Content (High Quality)\n"
         
-        # Add raw content for templates with good scores
         high_quality_templates = [t for t in templates if t.get('content_score', 0) >= 3]
         
         for i, template in enumerate(high_quality_templates, 1):
@@ -293,23 +330,22 @@ This research aimed to find and collect 5-10 high-quality formal appeal letters 
         report += f"""
 ## Research Methodology
 
-This research was conducted using automated web scraping techniques on {time.strftime('%Y-%m-%d')}. The methodology included:
+This research was conducted using automated web search and content extraction techniques on {time.strftime('%Y-%m-%d')}. The methodology included:
 
-1. **Targeted Search:** Used specific Portuguese search terms related to traffic fine appeals
-2. **Multi-Source Approach:** Searched legal professionals, government portals, law firms, and academic resources
-3. **Content Analysis:** Scored content based on relevance to Portuguese traffic fine appeals
-4. **Quality Filtering:** Selected templates with content scores ≥ 3 for detailed analysis
+1. **Targeted Search:** Used specific Portuguese search terms related to traffic fine appeals via DuckDuckGo.
+2. **Search Result Processing:** Iterated through search results, filtering for relevant domains (.pt, legal-themed) and extracting potential template content.
+3. **Content Analysis:** Scored extracted content based on relevance to Portuguese traffic fine appeals.
+4. **Quality Filtering:** Selected templates with content scores ≥ 2 for detailed analysis.
 
 ## Data Sources
 
 All research was conducted using publicly available sources:
 - DuckDuckGo API for search results
-- Direct website scraping of target Portuguese legal resources
-- Focus on .pt domains and Portuguese legal websites
+- Publicly accessible websites found via search results
 
 ## Conclusion
 
-Successfully identified and analyzed Portuguese traffic fine appeal letter templates from multiple categories of legal sources. The templates cover various violation types including parking (estacionamento), speed (velocidade), and documentation (documentos) violations.
+This revised approach focuses on leveraging web search to discover publicly available appeal letter templates, adapting to the challenges of direct scraping of specific, often dynamic or inaccessible, target websites.
 
 **Research completed on:** {time.strftime('%Y-%m-%d %H:%M:%S')}
 """
@@ -324,40 +360,25 @@ def main():
     print("Portuguese Traffic Fine Appeal Templates Research")
     print("=" * 60)
     print(f"Research Date: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-    print("Target: 5-10 high-quality formal appeal letters")
+    print("Target: High-quality formal appeal letters from web search")
     print("Focus: Diverse violation types (estacionamento, velocidade, documents, etc.)")
     print("=" * 60)
     
     try:
         # Step 1: Conduct searches
-        search_results = scraper.conduct_searches()
+        raw_search_results = scraper.conduct_searches()
         
-        # Step 2: Scrape target websites
-        print(f"\nScraping target Portuguese legal websites...")
-        templates = scraper.scrape_target_websites()
+        # Step 2: Process search results to extract templates
+        templates = scraper.process_search_results_for_templates(raw_search_results)
         
-        # Step 3: Extract template content from search results
-        print(f"\nExtracting templates from search results...")
-        for result in search_results[:15]:  # Limit to avoid overwhelming
-            url = result.get('url', '')
-            if url:
-                content = scraper.extract_template_content(url)
-                if content and content['content_score'] >= 2:
-                    templates.append({
-                        **result,
-                        **content,
-                        'category': 'search_result'
-                    })
-                time.sleep(2)
-        
-        # Step 4: Save all results
-        scraper.save_results(templates, search_results)
+        # Step 3: Save all results
+        scraper.save_results(templates, raw_search_results)
         
         print(f"\n[SUCCESS] Research completed successfully!")
         print(f"[STATS] Total templates analyzed: {len(templates)}")
-        print(f"[STATS] Search results processed: {len(search_results)}")
+        print(f"[STATS] Raw search results processed: {len(raw_search_results)}")
         
-        return templates, search_results
+        return templates, raw_search_results
         
     except Exception as e:
         print(f"[ERROR] Error during research: {e}")

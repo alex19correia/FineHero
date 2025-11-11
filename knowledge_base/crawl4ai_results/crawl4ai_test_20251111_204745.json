@@ -1,0 +1,29 @@
+[
+  {
+    "source": "DRE - Diario da Republica",
+    "url": "https://dre.pt/",
+    "description": "Portuguese official legal gazette",
+    "content_length": 1,
+    "content_preview": "\n",
+    "crawl_success": true,
+    "timestamp": "2025-11-11T20:47:31.114189"
+  },
+  {
+    "source": "Lisbon Municipal",
+    "url": "https://lisboa.pt/",
+    "description": "Lisbon city official website",
+    "content_length": 44200,
+    "content_preview": "##  Está em controlo dos seus dados \nNós e os nossos parceiros de negócios usamos tecnologias, incluindo cookies, para recolher informações sobre si para vários propósitos, incluindo: personalização de conteúdo e anúncios, análise de nosso tráfego e fornecimento de acesso a recursos de mídia social.  \nAo premir \"Aceito\", consente todas estas finalidades. Também pode escolher especificar as finalidades que irá consentir, ao clicar na caixa de verificação ao lado da finalidade e, em seguida, em \"G...",
+    "crawl_success": true,
+    "timestamp": "2025-11-11T20:47:36.977287"
+  },
+  {
+    "source": "Porto Municipal",
+    "url": "https://www.porto.pt/",
+    "description": "Porto city official website",
+    "content_length": 3733,
+    "content_preview": "[Porto.](https://www.porto.pt/pt)\n  * [Destaques](https://www.porto.pt/pt/noticias/destaques \"Destaques\")\n  * [Vídeos](https://www.porto.pt/pt/videos \"Vídeos\")\n  * [Fotogalerias](https://www.porto.pt/pt/fotogalerias \"Fotogalerias\")\n  * [Eventos](https://www.porto.pt/pt/eventos \"Eventos\")\n  * [Curiosidades](https://www.porto.pt/pt/topico/curiosidades \"Curiosidades\")\n\n\nPesquisa\nAguaceiros/chuva fracos19ºC\n[EN](https://www.porto.pt/en \"EN\")\n  * [Economia](https://www.porto.pt/pt/noticias/categoria/...",
+    "crawl_success": true,
+    "timestamp": "2025-11-11T20:47:41.742565"
+  }
+]

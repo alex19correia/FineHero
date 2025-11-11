@@ -6,12 +6,18 @@ Jinja2
 
 # Pydantic for data validation (often a specific version is used with FastAPI)
 pydantic
+pydantic-settings
 
 # Database
 SQLAlchemy
 
 # Environment variables
 python-dotenv
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
 
 # PDF and OCR processing
 pandas

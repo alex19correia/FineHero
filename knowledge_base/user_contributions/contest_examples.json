@@ -13,5 +13,101 @@
     "submission_date": "2025-11-11 18:29:22.997599",
     "user_feedback_score": 4.8,
     "community_approved": false
+  },
+  "8e584dcf": {
+    "contest_id": "8e584dcf",
+    "fine_reference": "ec7636c3",
+    "contest_type": "administrative",
+    "outcome": "approved",
+    "defense_strategy": "Sinalização inadequada e má visibilidade",
+    "outcome_factors": [],
+    "supporting_law": "Artigo 137º do Código da Estrada",
+    "submission_date": "2025-11-11 20:07:03.596706",
+    "user_feedback_score": 4.0,
+    "community_approved": false
+  },
+  "9e6cb5eb": {
+    "contest_id": "9e6cb5eb",
+    "fine_reference": "9bfe9bc6",
+    "contest_type": "administrative",
+    "outcome": "partial",
+    "defense_strategy": "Radars mal calibrados - margem de erro",
+    "outcome_factors": [],
+    "supporting_law": "Artigo 137º do Código da Estrada",
+    "submission_date": "2025-11-11 20:07:03.599192",
+    "user_feedback_score": 4.0,
+    "community_approved": false
+  },
+  "14beacbd": {
+    "contest_id": "14beacbd",
+    "fine_reference": "ec7636c3",
+    "contest_type": "administrative",
+    "outcome": "approved",
+    "defense_strategy": "Sinalização inadequada e má visibilidade",
+    "outcome_factors": [],
+    "supporting_law": "Artigo 137º do Código da Estrada",
+    "submission_date": "2025-11-11 20:07:03.605326",
+    "user_feedback_score": 4.0,
+    "community_approved": false
+  },
+  "4665fd93": {
+    "contest_id": "4665fd93",
+    "fine_reference": "9bfe9bc6",
+    "contest_type": "administrative",
+    "outcome": "partial",
+    "defense_strategy": "Radars mal calibrados - margem de erro",
+    "outcome_factors": [],
+    "supporting_law": "Artigo 137º do Código da Estrada",
+    "submission_date": "2025-11-11 20:07:03.609286",
+    "user_feedback_score": 4.0,
+    "community_approved": false
+  },
+  "cf241803": {
+    "contest_id": "cf241803",
+    "fine_reference": "ec7636c3",
+    "contest_type": "administrative",
+    "outcome": "approved",
+    "defense_strategy": "Sinalização inadequada e má visibilidade",
+    "outcome_factors": [],
+    "supporting_law": "Artigo 137º do Código da Estrada",
+    "submission_date": "2025-11-11 20:48:07.572970",
+    "user_feedback_score": 4.0,
+    "community_approved": false
+  },
+  "d821f04e": {
+    "contest_id": "d821f04e",
+    "fine_reference": "9bfe9bc6",
+    "contest_type": "administrative",
+    "outcome": "partial",
+    "defense_strategy": "Radars mal calibrados - margem de erro",
+    "outcome_factors": [],
+    "supporting_law": "Artigo 137º do Código da Estrada",
+    "submission_date": "2025-11-11 20:48:07.577616",
+    "user_feedback_score": 4.0,
+    "community_approved": false
+  },
+  "64aa2ec6": {
+    "contest_id": "64aa2ec6",
+    "fine_reference": "ec7636c3",
+    "contest_type": "administrative",
+    "outcome": "approved",
+    "defense_strategy": "Sinalização inadequada e má visibilidade",
+    "outcome_factors": [],
+    "supporting_law": "Artigo 137º do Código da Estrada",
+    "submission_date": "2025-11-11 20:48:07.582499",
+    "user_feedback_score": 4.0,
+    "community_approved": false
+  },
+  "b25ee827": {
+    "contest_id": "b25ee827",
+    "fine_reference": "9bfe9bc6",
+    "contest_type": "administrative",
+    "outcome": "partial",
+    "defense_strategy": "Radars mal calibrados - margem de erro",
+    "outcome_factors": [],
+    "supporting_law": "Artigo 137º do Código da Estrada",
+    "submission_date": "2025-11-11 20:48:07.586782",
+    "user_feedback_score": 4.0,
+    "community_approved": false
   }
 }

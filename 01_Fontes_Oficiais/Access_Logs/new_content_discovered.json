@@ -1,0 +1,146 @@
+[
+  {
+    "discovery_date": "2025-11-11T20:06:23.734496",
+    "new_documents": [],
+    "new_decisions": [],
+    "new_examples": [
+      {
+        "fine_type": "estacionamento",
+        "location": "Avenida da Liberdade, Lisboa",
+        "amount": 45.0,
+        "authority": "Câmara Municipal de Lisboa",
+        "contest_outcome": "successful",
+        "defense_strategy": "Sinalização inadequada e má visibilidade",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:06:23.606329"
+      },
+      {
+        "fine_type": "velocidade",
+        "location": "A1 - Autoestrada do Norte",
+        "amount": 300.0,
+        "authority": "GNR",
+        "contest_outcome": "partial",
+        "defense_strategy": "Radars mal calibrados - margem de erro",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:06:23.606343"
+      },
+      {
+        "fine_type": "estacionamento",
+        "location": "Avenida da Liberdade, Lisboa",
+        "amount": 45.0,
+        "authority": "Câmara Municipal de Lisboa",
+        "contest_outcome": "successful",
+        "defense_strategy": "Sinalização inadequada e má visibilidade",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:06:23.607005"
+      },
+      {
+        "fine_type": "velocidade",
+        "location": "A1 - Autoestrada do Norte",
+        "amount": 300.0,
+        "authority": "GNR",
+        "contest_outcome": "partial",
+        "defense_strategy": "Radars mal calibrados - margem de erro",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:06:23.607018"
+      }
+    ],
+    "total_new_items": 4
+  },
+  {
+    "discovery_date": "2025-11-11T20:07:03.624928",
+    "new_documents": [],
+    "new_decisions": [],
+    "new_examples": [
+      {
+        "fine_type": "estacionamento",
+        "location": "Avenida da Liberdade, Lisboa",
+        "amount": 45.0,
+        "authority": "Câmara Municipal de Lisboa",
+        "contest_outcome": "successful",
+        "defense_strategy": "Sinalização inadequada e má visibilidade",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:07:03.460079"
+      },
+      {
+        "fine_type": "velocidade",
+        "location": "A1 - Autoestrada do Norte",
+        "amount": 300.0,
+        "authority": "GNR",
+        "contest_outcome": "partial",
+        "defense_strategy": "Radars mal calibrados - margem de erro",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:07:03.460092"
+      },
+      {
+        "fine_type": "estacionamento",
+        "location": "Avenida da Liberdade, Lisboa",
+        "amount": 45.0,
+        "authority": "Câmara Municipal de Lisboa",
+        "contest_outcome": "successful",
+        "defense_strategy": "Sinalização inadequada e má visibilidade",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:07:03.460644"
+      },
+      {
+        "fine_type": "velocidade",
+        "location": "A1 - Autoestrada do Norte",
+        "amount": 300.0,
+        "authority": "GNR",
+        "contest_outcome": "partial",
+        "defense_strategy": "Radars mal calibrados - margem de erro",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:07:03.460654"
+      }
+    ],
+    "total_new_items": 4
+  },
+  {
+    "discovery_date": "2025-11-11T20:48:07.698634",
+    "new_documents": [],
+    "new_decisions": [],
+    "new_examples": [
+      {
+        "fine_type": "estacionamento",
+        "location": "Avenida da Liberdade, Lisboa",
+        "amount": 45.0,
+        "authority": "Câmara Municipal de Lisboa",
+        "contest_outcome": "successful",
+        "defense_strategy": "Sinalização inadequada e má visibilidade",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:48:07.545182"
+      },
+      {
+        "fine_type": "velocidade",
+        "location": "A1 - Autoestrada do Norte",
+        "amount": 300.0,
+        "authority": "GNR",
+        "contest_outcome": "partial",
+        "defense_strategy": "Radars mal calibrados - margem de erro",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:48:07.545195"
+      },
+      {
+        "fine_type": "estacionamento",
+        "location": "Avenida da Liberdade, Lisboa",
+        "amount": 45.0,
+        "authority": "Câmara Municipal de Lisboa",
+        "contest_outcome": "successful",
+        "defense_strategy": "Sinalização inadequada e má visibilidade",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:48:07.545803"
+      },
+      {
+        "fine_type": "velocidade",
+        "location": "A1 - Autoestrada do Norte",
+        "amount": 300.0,
+        "authority": "GNR",
+        "contest_outcome": "partial",
+        "defense_strategy": "Radars mal calibrados - margem de erro",
+        "source": "Portuguese Legal Forums",
+        "discovery_date": "2025-11-11T20:48:07.545813"
+      }
+    ],
+    "total_new_items": 4
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "test_timestamp": "2025-11-11T20:05:46.996610",
+  "total_targets": 3,
+  "successful_crawls": 3,
+  "success_rate": 100.0,
+  "total_content_length": 62230,
+  "average_content_length": 20743.333333333332,
+  "crawl4ai_installation": "SUCCESS",
+  "windows_compatibility": "SUCCESS",
+  "cost": "$0 (Free Open Source)"
+}

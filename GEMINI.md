@@ -54,3 +54,44 @@ Guidelines for interpreting and responding to user prompts.
 
 ### code_review_process
 **Description:** Run the codeRabbit CLI by running the command: `coderabbit --prompt-only -t uncommitted`. It's a long running task and might take a while. Check every 2 minutes if it's complete and once its complete review and validate critical fixes and recommended fixes, while ignoring nits or unnecessary changes. Then fix those and run coderabbit again. You can run this loop for up to 3 times.
+
+### When Creating New Documents
+
+**Before Creating a New Document:**
+1. Check if master document already exists
+2. If yes, update existing document instead of creating new
+3. If no, create in appropriate subfolder (CURRENT/IMPLEMENTATION/REFERENCE)
+
+**Document Naming:**
+- Use descriptive names: `user_authentication_implementation.md`
+- Include dates in planning docs: `sprint_plan_2025_11_11.md`
+- Never use version numbers: `strategy_v2.md` ❌
+
+**Content Organization:**
+- Keep master documents comprehensive
+- Keep planning documents focused and time-bound
+- Reference master documents from planning docs
+
+### When Updating Documents
+
+**Master Documents (CURRENT/):**
+- Update in place with new information
+- Include change history at bottom
+- Mark significant updates with dates
+
+**Implementation Documents (IMPLEMENTATION/):**
+- Update as development progresses
+- Archive completed sections to REFERENCE/
+- Delete expired planning documents
+
+### When Deleting Documents
+
+**Planning Documents (After Implementation):**
+- Delete immediately after completion
+- Don't keep "just in case" copies
+- Use Git history if you need to reference old content
+
+**Draft Documents (After Approval):**
+- Delete once final version is approved
+- Keep only the final approved version
+- Reference Git history for change tracking

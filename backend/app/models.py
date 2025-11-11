@@ -18,7 +18,10 @@ class Fine(Base):
     fine_amount = Column(Float)
     infraction_code = Column(String, index=True)
     pdf_reference = Column(String)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
+    # Relationships
+    user = relationship("User", back_populates="fines")
     defenses = relationship("Defense", back_populates="fine")
 
 class Defense(Base):
@@ -30,8 +33,11 @@ class Defense(Base):
     id = Column(Integer, primary_key=True, index=True)
     content = Column(Text)
     fine_id = Column(Integer, ForeignKey("fines.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
+    # Relationships
     fine = relationship("Fine", back_populates="defenses")
+    user = relationship("User", back_populates="defenses")
 
 class LegalDocument(Base):
     """
@@ -73,6 +79,28 @@ class CaseOutcome(Base):
     citation = Column(String, nullable=True) # Legal citation for the case
 
     legal_documents = relationship("LegalDocument", back_populates="case_outcome")
+
+class User(Base):
+    """
+    Database model for user accounts.
+    """
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    full_name = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    subscription_tier = Column(String, default="free") # free, premium, enterprise
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)
+
+    # Relationships
+    fines = relationship("Fine", back_populates="user")
+    defenses = relationship("Defense", back_populates="user")
 
 class DefenseTemplate(Base):
     """
