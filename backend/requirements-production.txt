@@ -1,0 +1,63 @@
+# FastAPI and web server
+fastapi
+uvicorn[standard]
+python-multipart
+Jinja2
+
+# Pydantic for data validation (often a specific version is used with FastAPI)
+pydantic
+
+# Database
+SQLAlchemy
+
+# PostgreSQL and database drivers
+psycopg2-binary
+asyncpg
+alembic
+
+# Redis and caching
+redis
+celery
+
+# Environment variables
+python-dotenv
+
+# PDF and OCR processing
+pandas
+PyPDF2
+pdfplumber
+pytesseract
+easyocr
+
+# HTTP requests
+requests
+httpx
+beautifulsoup4
+
+# AI and ML
+google-generativeai
+transformers
+
+# RAG and Vector Store
+langchain
+langchain-community
+langchain-text-splitters
+langchain-huggingface
+faiss-cpu
+sentence-transformers
+
+# Production monitoring and performance
+prometheus-client
+psutil
+structlog
+opentelemetry-api
+opentelemetry-sdk
+
+# Security
+cryptography
+passlib[bcrypt]
+
+# Additional production utilities
+python-json-logger
+gunicorn
+prometheus-flask-exporter

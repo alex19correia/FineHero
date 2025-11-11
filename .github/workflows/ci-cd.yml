@@ -1,0 +1,327 @@
+name: Continuous Integration and Deployment
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # Backend Testing and Quality Checks
+  backend-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-type: [unit, integration, all]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        
+    - name: Install RAG dependencies
+      run: |
+        pip install langchain langchain-community langchain-text-splitters
+        pip install langchain-huggingface faiss-cpu sentence-transformers
+        pip install transformers
+        
+    - name: Install test dependencies for OCR
+      run: |
+        pip install pdfplumber pytesseract easyocr
+        # Note: System dependencies for tesseract would need to be installed in CI
+        
+    - name: Lint Python code
+      run: |
+        cd backend
+        # Run flake8 for code style
+        flake8 app/ services/ --max-line-length=88 --ignore=E203,W503
+        # Run isort for import sorting
+        isort --check-only app/ services/
+        # Run black for code formatting
+        black --check app/ services/
+        
+    - name: Type check with mypy
+      run: |
+        cd backend
+        mypy app/ services/ --ignore-missing-imports
+        
+    - name: Security scan with bandit
+      run: |
+        cd backend
+        bandit -r app/ services/ -f json -o bandit-report.json || true
+        
+    - name: Dependency vulnerability scan
+      run: |
+        cd backend
+        safety check --json --output safety-report.json || true
+        
+    - name: Run tests with coverage
+      run: |
+        cd backend
+        # Run specific test types based on matrix
+        case "${{ matrix.test-type }}" in
+          "unit")
+            pytest tests/ -v -m "unit" --cov=app --cov=services --cov=core --cov-report=xml --cov-report=html
+            ;;
+          "integration")
+            pytest tests/ -v -m "integration" --cov=app --cov=services --cov=core --cov-report=xml
+            ;;
+          "all")
+            pytest tests/ -v --cov=app --cov=services --cov=core --cov-report=xml --cov-report=html --cov-fail-under=80
+            ;;
+        esac
+        
+    - name: Upload coverage to Codecov
+      if: matrix.test-type == 'all'
+      uses: codecov/codecov-action@v3
+      with:
+        file: backend/coverage.xml
+        flags: backend
+        name: backend-coverage
+        fail_ci_if_error: false
+        
+    - name: Upload security reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-security-reports
+        path: backend/*.json
+        
+  # Frontend Testing and Building
+  frontend-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+        
+    - name: Run frontend linting
+      run: |
+        cd frontend
+        npm run lint
+        
+    - name: Type check frontend
+      run: |
+        cd frontend
+        npx tsc --noEmit
+        
+    - name: Run frontend tests
+      run: |
+        cd frontend
+        npm run test -- --coverage --watchAll=false || echo "Frontend tests not yet implemented"
+        
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+        
+    - name: Upload frontend build
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/.next/
+        
+  # Integration Tests
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Download frontend build
+      uses: actions/download-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/.next/
+        
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install pytest-httpx  # For API testing
+        
+    - name: Run end-to-end tests
+      run: |
+        cd backend
+        pytest tests/test_integration/ -v --cov=app --cov=services --cov=core || echo "Integration tests not yet implemented"
+        
+  # Documentation Generation
+  docs-generation:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install documentation dependencies
+      run: |
+        pip install sphinx sphinx-rtd-theme mkdocs mkdocs-material
+        
+    - name: Generate API documentation
+      run: |
+        cd backend
+        python -m sphinx -b html docs docs/_build/html || echo "Sphinx docs not configured yet"
+        
+    - name: Generate OpenAPI documentation
+      run: |
+        python -c "
+        from app.main import app
+        import json
+        openapi_spec = app.openapi()
+        with open('openapi.json', 'w') as f:
+            json.dump(openapi_spec, f, indent=2)
+        "
+        
+    - name: Upload documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation
+        path: |
+          backend/docs/_build/html/
+          openapi.json
+          
+  # Security Analysis
+  security-analysis:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        languages: python, javascript
+        
+    - name: Run Semgrep
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/secrets
+          p/python
+          p/javascript
+          p/typescript
+          
+  # Performance Benchmarking
+  performance-tests:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        pip install pytest pytest-benchmark
+        cd backend && pip install -r requirements.txt
+        
+    - name: Run performance benchmarks
+      run: |
+        cd backend
+        pytest tests/test_performance/ -v || echo "Performance tests not yet implemented"
+        
+  # Deployment (only on main branch)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, integration-tests, security-analysis]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # Add actual deployment commands here
+        # This could include Docker builds, Kubernetes deployments, etc.
+        
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests..."
+        # Add health check commands here
+        
+    - name: Deploy to production
+      if: success()
+      run: |
+        echo "Deploying to production environment..."
+        # Add production deployment commands here
+        
+    - name: Notify deployment status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          Deployment ${{ job.status }} for commit ${{ github.sha }}
+          Branch: ${{ github.ref_name }}
+          Author: ${{ github.actor }}

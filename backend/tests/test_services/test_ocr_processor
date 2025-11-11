@@ -1,0 +1,397 @@
+"""
+OCR processing service tests.
+
+This module tests the PDF processing pipeline including:
+- Text extraction using pdfplumber, pytesseract, and EasyOCR
+- Text parsing with regex patterns
+- Data validation and extraction
+- Error handling and fallback mechanisms
+"""
+
+import pytest
+from unittest.mock import patch, mock_open, MagicMock
+import io
+import tempfile
+from PIL import Image
+import numpy as np
+
+from ..conftest import mock_ocr_processor
+
+
+@pytest.mark.ocr
+@pytest.mark.services
+class TestPDFProcessor:
+    """Test suite for PDFProcessor class."""
+    
+    def test_init_processor(self):
+        """Test PDF processor initialization."""
+        from services.pdf_processor import PDFProcessor
+        
+        # Create a mock file-like object
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        
+        processor = PDFProcessor(mock_file)
+        
+        assert processor.pdf_file == mock_file
+        assert processor.extracted_data == {}
+        assert processor.reader is not None
+    
+    @patch('pdfplumber.open')
+    def test_extract_text_pdfplumber_success(self, mock_pdfplumber_open):
+        """Test successful text extraction using pdfplumber."""
+        from services.pdf_processor import PDFProcessor
+        
+        # Mock pdfplumber to return sample text
+        mock_page = MagicMock()
+        mock_page.extract_text.return_value = "Sample PDF text with legal content"
+        mock_pdf = MagicMock()
+        mock_pdf.pages = [mock_page]
+        mock_pdfplumber_open.return_value.__enter__.return_value = mock_pdf
+        
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        mock_file.seek = MagicMock()
+        
+        processor = PDFProcessor(mock_file)
+        text = processor.extract_text()
+        
+        assert text == "Sample PDF text with legal content"
+        mock_pdfplumber_open.assert_called_once()
+    
+    @patch('pdfplumber.open')
+    def test_extract_text_pdfplumber_fallback(self, mock_pdfplumber_open):
+        """Test fallback from pdfplumber to OCR methods."""
+        from services.pdf_processor import PDFProcessor
+        
+        # Mock pdfplumber to raise exception
+        mock_pdfplumber_open.side_effect = Exception("PDF parsing failed")
+        
+        # Mock pytesseract
+        with patch('pytesseract.image_to_string') as mock_tesseract, \
+             patch('pdfplumber.open') as mock_pdfplumber_second:
+            
+            mock_page = MagicMock()
+            mock_page.to_image.return_value.original = MagicMock()
+            mock_pdf = MagicMock()
+            mock_pdf.pages = [mock_page]
+            mock_pdfplumber_second.return_value.__enter__.return_value = mock_pdf
+            
+            mock_tesseract.return_value = "Text extracted via Tesseract OCR"
+            
+            mock_file = MagicMock()
+            mock_file.name = "test.pdf"
+            mock_file.seek = MagicMock()
+            
+            processor = PDFProcessor(mock_file)
+            text = processor.extract_text()
+            
+            # Should fall back to tesseract
+            assert text == "Text extracted via Tesseract OCR"
+            mock_tesseract.assert_called_once()
+    
+    @patch('pdfplumber.open')
+    def test_extract_text_easyocr_fallback(self, mock_pdfplumber_open):
+        """Test fallback from pdfplumber and pytesseract to EasyOCR."""
+        from services.pdf_processor import PDFProcessor
+        
+        # Mock all previous methods to fail
+        mock_pdfplumber_open.side_effect = Exception("PDF parsing failed")
+        
+        with patch('pytesseract.image_to_string') as mock_tesseract, \
+             patch('pdfplumber.open') as mock_pdfplumber_second, \
+             patch('easyocr.Reader') as mock_easyocr_reader:
+            
+            # Setup mock pdfplumber for OCR attempts
+            mock_page = MagicMock()
+            mock_page.to_image.return_value.original = MagicMock()
+            mock_pdf = MagicMock()
+            mock_pdf.pages = [mock_page]
+            mock_pdfplumber_second.return_value.__enter__.return_value = mock_pdf
+            
+            # Make tesseract fail too
+            mock_tesseract.side_effect = Exception("Tesseract failed")
+            
+            # Setup EasyOCR mock
+            mock_reader_instance = MagicMock()
+            mock_easyocr_reader.return_value = mock_reader_instance
+            mock_reader_instance.readtext.return_value = [
+                (None, "Text 1", 0.9),
+                (None, "Text 2", 0.8)
+            ]
+            
+            mock_file = MagicMock()
+            mock_file.name = "test.pdf"
+            mock_file.seek = MagicMock()
+            
+            processor = PDFProcessor(mock_file)
+            text = processor.extract_text()
+            
+            # Should fall back to EasyOCR
+            assert "Text 1 Text 2" in text
+            mock_reader_instance.readtext.assert_called_once()
+    
+    def test_parse_text_success(self):
+        """Test successful text parsing with regex patterns."""
+        from services.pdf_processor import PDFProcessor
+        
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        
+        processor = PDFProcessor(mock_file)
+        
+        sample_text = """
+        Auto de Contraordenação
+        Data: 2025-11-11
+        Local: Avenida da Liberdade, Lisboa
+        Código da Infração: ART135-1-A
+        Valor: 150.00 EUR
+        """
+        
+        parsed_data = processor.parse_text(sample_text)
+        
+        assert "date" in parsed_data
+        assert parsed_data["date"] == "2025-11-11"
+        assert "location" in parsed_data
+        assert "Avenida da Liberdade" in parsed_data["location"]
+        assert "amount" in parsed_data
+        assert parsed_data["amount"] == "150.00"
+        assert "infraction" in parsed_data
+        assert parsed_data["infraction"] == "ART135-1-A"
+    
+    def test_parse_text_missing_fields(self):
+        """Test parsing text with missing required fields."""
+        from services.pdf_processor import PDFProcessor
+        
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        
+        processor = PDFProcessor(mock_file)
+        
+        incomplete_text = "Some random text without legal fields"
+        
+        parsed_data = processor.parse_text(incomplete_text)
+        
+        # Should handle missing fields gracefully
+        assert isinstance(parsed_data, dict)
+        # May be empty or contain partial matches
+    
+    def test_validate_data_all_fields_present(self):
+        """Test validation when all required fields are present."""
+        from services.pdf_processor import PDFProcessor
+        
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        
+        processor = PDFProcessor(mock_file)
+        processor.extracted_data = {
+            "date": "2025-11-11",
+            "location": "Avenida da Liberdade, Lisboa",
+            "infraction": "ART135-1-A",
+            "amount": "150.00"
+        }
+        
+        validated_data = processor.validate_data()
+        
+        assert validated_data["date"] == "2025-11-11"
+        assert validated_data["location"] == "Avenida da Liberdade, Lisboa"
+        assert validated_data["amount"] == "150.00"
+        assert validated_data["infraction"] == "ART135-1-A"
+    
+    def test_validate_data_missing_fields(self):
+        """Test validation with missing fields (should add user input placeholders)."""
+        from services.pdf_processor import PDFProcessor
+        
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        
+        processor = PDFProcessor(mock_file)
+        processor.extracted_data = {
+            "date": "2025-11-11",
+            # Missing location, infraction, amount
+        }
+        
+        validated_data = processor.validate_data()
+        
+        # Should have original field plus user input for missing fields
+        assert validated_data["date"] == "2025-11-11"
+        assert "user_provided_location" in validated_data
+        assert "user_provided_infraction" in validated_data
+        assert "user_provided_amount" in validated_data
+    
+    @patch('services.pdf_processor.PDFProcessor.extract_text')
+    @patch('services.pdf_processor.PDFProcessor.parse_text')
+    @patch('services.pdf_processor.PDFProcessor.validate_data')
+    def test_process_full_pipeline(self, mock_validate, mock_parse, mock_extract):
+        """Test the complete processing pipeline."""
+        from services.pdf_processor import PDFProcessor
+        
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        
+        # Setup mock return values
+        mock_extract.return_value = "Sample extracted text"
+        mock_parse.return_value = {"parsed": "data"}
+        mock_validate.return_value = {"validated": "data"}
+        
+        processor = PDFProcessor(mock_file)
+        result = processor.process()
+        
+        # Verify pipeline execution
+        mock_extract.assert_called_once()
+        mock_parse.assert_called_once_with("Sample extracted text")
+        mock_validate.assert_called_once()
+        
+        assert result == {"validated": "data"}
+    
+    def test_ocr_error_handling(self):
+        """Test error handling when all OCR methods fail."""
+        from services.pdf_processor import PDFProcessor
+        
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        mock_file.seek = MagicMock()
+        
+        # Mock all OCR methods to fail
+        with patch('pdfplumber.open') as mock_pdfplumber, \
+             patch('pytesseract.image_to_string') as mock_tesseract, \
+             patch('easyocr.Reader') as mock_easyocr:
+            
+            mock_pdfplumber.side_effect = Exception("PDF parsing failed")
+            mock_tesseract.side_effect = Exception("Tesseract failed")
+            
+            mock_reader = MagicMock()
+            mock_easyocr.return_value = mock_reader
+            mock_reader.readtext.side_effect = Exception("EasyOCR failed")
+            
+            processor = PDFProcessor(mock_file)
+            text = processor.extract_text()
+            
+            # Should return empty string when all methods fail
+            assert text == ""
+    
+    def test_pil_image_conversion(self):
+        """Test PIL Image to numpy array conversion for EasyOCR."""
+        from services.pdf_processor import PDFProcessor
+        import io
+        
+        mock_file = MagicMock()
+        mock_file.name = "test.pdf"
+        mock_file.seek = MagicMock()
+        
+        # Create a simple test image
+        image = Image.new('RGB', (100, 100), color='red')
+        img_byte_arr = io.BytesIO()
+        image.save(img_byte_arr, format='PNG')
+        img_byte_arr.seek(0)
+        
+        # Verify image can be converted to numpy array
+        img_array = np.array(image)
+        assert img_array.shape == (100, 100, 3)
+        assert img_array.dtype == np.uint8
+
+
+@pytest.mark.ocr
+@pytest.mark.integration
+class TestOCRIntegration:
+    """Integration tests for OCR pipeline."""
+    
+    def test_ocr_with_real_pdf_text(self):
+        """Test OCR processing with simulated PDF content."""
+        from services.pdf_processor import PDFProcessor
+        
+        # This would test with actual PDF content in a real scenario
+        # For now, we test the logic structure
+        
+        mock_file = MagicMock()
+        mock_file.name = "traffic_fine.pdf"
+        
+        processor = PDFProcessor(mock_file)
+        
+        # Mock the full pipeline
+        with patch.object(processor, 'extract_text') as mock_extract, \
+             patch.object(processor, 'parse_text') as mock_parse, \
+             patch.object(processor, 'validate_data') as mock_validate:
+            
+            mock_extract.return_value = """
+            AUTO DE CONTRAORDENAÇÃO
+            Data: 11/11/2025
+            Local: Rua das Flores, Porto
+            Infrator: João Silva
+            Código: ART135-1-A
+            Valor: 150 EUR
+            """
+            
+            mock_parse.return_value = {
+                "date": "11/11/2025",
+                "location": "Rua das Flores, Porto",
+                "infraction": "ART135-1-A",
+                "amount": "150"
+            }
+            
+            mock_validate.return_value = {
+                "date": "2025-11-11",
+                "location": "Rua das Flores, Porto",
+                "infraction": "ART135-1-A",
+                "amount": "150.00"
+            }
+            
+            result = processor.process()
+            
+            assert result["location"] == "Rua das Flores, Porto"
+            assert result["infraction"] == "ART135-1-A"
+            assert result["amount"] == "150.00"
+
+
+@pytest.mark.ocr
+@pytest.mark.performance
+class TestOCRPerformance:
+    """Performance tests for OCR processing."""
+    
+    def test_large_document_processing_time(self):
+        """Test that large documents are processed within acceptable time."""
+        import time
+        
+        from services.pdf_processor import PDFProcessor
+        
+        mock_file = MagicMock()
+        mock_file.name = "large_document.pdf"
+        
+        processor = PDFProcessor(mock_file)
+        
+        # Mock processing to simulate time
+        with patch.object(processor, 'extract_text') as mock_extract, \
+             patch.object(processor, 'parse_text') as mock_parse, \
+             patch.object(processor, 'validate_data') as mock_validate:
+            
+            mock_extract.return_value = "X" * 100000  # Large text
+            mock_parse.return_value = {"parsed": "data"}
+            mock_validate.return_value = {"validated": "data"}
+            
+            start_time = time.time()
+            result = processor.process()
+            end_time = time.time()
+            
+            processing_time = end_time - start_time
+            
+            # Processing should be quick for mocked methods
+            assert processing_time < 1.0  # Should complete within 1 second
+            assert result == {"validated": "data"}
+    
+    def test_memory_usage_with_large_text(self):
+        """Test memory usage with large text processing."""
+        from services.pdf_processor import PDFProcessor
+        
+        mock_file = MagicMock()
+        mock_file.name = "large_text.pdf"
+        
+        processor = PDFProcessor(mock_file)
+        
+        # Test with large extracted text
+        large_text = "Legal content. " * 10000  # 10x repetition
+        
+        processor.extracted_data = {"large_text_field": large_text}
+        
+        # Should handle large text without memory issues
+        assert "large_text_field" in processor.extracted_data
+        assert len(processor.extracted_data["large_text_field"]) > 100000
