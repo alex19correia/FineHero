@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from datetime import datetime, timezone
 from ..core.config import settings
-from .api.v1.endpoints import fines, defenses, rag, quality, analytics, knowledge_base, auth
+from .api.v1.endpoints import fines, defenses, rag, quality, analytics, knowledge_base, auth, payments
 
 app = FastAPI(title=settings.APP_NAME)
 
@@ -17,6 +17,9 @@ app.include_router(rag.router, prefix="/api/v1", tags=["rag"])
 app.include_router(quality.router, prefix="/api/v1", tags=["quality"])
 app.include_router(analytics.router, prefix="/api/v1", tags=["analytics"])
 app.include_router(knowledge_base.router, prefix="/api/v1", tags=["knowledge-base"])
+
+# Register payment endpoints
+app.include_router(payments.router, prefix="/api/v1", tags=["payments"])
 
 @app.get("/")
 async def root():
@@ -99,9 +102,26 @@ async def get_available_features():
                     "/api/v1/knowledge-base/coverage"
                 ],
                 "description": "Knowledge base administration and maintenance"
+            },
+            "payment_system": {
+                "endpoints": [
+                    "/api/v1/customers",
+                    "/api/v1/customers/me",
+                    "/api/v1/payments/intents",
+                    "/api/v1/payments",
+                    "/api/v1/subscriptions",
+                    "/api/v1/subscriptions/{id}",
+                    "/api/v1/portal-session",
+                    "/api/v1/billing-overview",
+                    "/api/v1/stats",
+                    "/api/v1/products",
+                    "/api/v1/prices",
+                    "/api/v1/webhooks/stripe"
+                ],
+                "description": "Complete Stripe payment and subscription management"
             }
         },
         "api_version": "v1",
-        "total_endpoints": 30,
+        "total_endpoints": 42,
         "documentation": "/docs"
     }

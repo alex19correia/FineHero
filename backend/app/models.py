@@ -1,9 +1,27 @@
-from sqlalchemy import Column, Integer, String, Float, Date, Text, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Float, Date, Text, ForeignKey, DateTime, Boolean, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+import enum
 
 Base = declarative_base()
+
+# Enums for payment status
+class PaymentStatus(enum.Enum):
+    pending = "pending"
+    processing = "processing"
+    succeeded = "succeeded"
+    failed = "failed"
+    canceled = "canceled"
+
+class SubscriptionStatus(enum.Enum):
+    incomplete = "incomplete"
+    incomplete_expired = "incomplete_expired"
+    trialing = "trialing"
+    active = "active"
+    past_due = "past_due"
+    canceled = "canceled"
+    unpaid = "unpaid"
 
 class Fine(Base):
     """
@@ -101,6 +119,7 @@ class User(Base):
     # Relationships
     fines = relationship("Fine", back_populates="user")
     defenses = relationship("Defense", back_populates="user")
+    stripe_customer = relationship("StripeCustomer", uselist=False, back_populates="user")
 
 class DefenseTemplate(Base):
     """
@@ -116,4 +135,161 @@ class DefenseTemplate(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class StripeCustomer(Base):
+    """
+    Database model for Stripe customers.
+    Maps to Stripe's Customer API.
+    """
+    __tablename__ = "stripe_customers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    stripe_customer_id = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, index=True)
+    name = Column(String)
+    description = Column(Text)
+    metadata = Column(Text)  # JSON string for additional metadata
+    
+    # Stripe fields
+    default_payment_method = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="stripe_customer")
+    subscriptions = relationship("StripeSubscription", back_populates="customer")
+    payments = relationship("Payment", back_populates="customer")
+
+class StripeSubscription(Base):
+    """
+    Database model for Stripe subscriptions.
+    Maps to Stripe's Subscription API.
+    """
+    __tablename__ = "stripe_subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey("stripe_customers.id"), nullable=False)
+    stripe_subscription_id = Column(String, unique=True, index=True, nullable=False)
+    
+    # Subscription details
+    status = Column(Enum(SubscriptionStatus), default=SubscriptionStatus.incomplete)
+    price_id = Column(String, index=True)  # Stripe price ID
+    product_id = Column(String, index=True)  # Stripe product ID
+    quantity = Column(Integer, default=1)
+    
+    # Billing periods
+    current_period_start = Column(DateTime)
+    current_period_end = Column(DateTime)
+    trial_start = Column(DateTime, nullable=True)
+    trial_end = Column(DateTime, nullable=True)
+    
+    # Billing
+    currency = Column(String(3), default="eur")
+    amount = Column(Integer)  # Amount in cents
+    
+    # Cancellation
+    cancel_at = Column(DateTime, nullable=True)
+    cancel_at_period_end = Column(Boolean, default=False)
+    canceled_at = Column(DateTime, nullable=True)
+    
+    # Metadata
+    metadata = Column(Text)  # JSON string
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    customer = relationship("StripeCustomer", back_populates="subscriptions")
+
+class Payment(Base):
+    """
+    Database model for Stripe payments.
+    Maps to Stripe's PaymentIntent API.
+    """
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey("stripe_customers.id"), nullable=True)
+    stripe_payment_intent_id = Column(String, unique=True, index=True, nullable=False)
+    
+    # Payment details
+    amount = Column(Integer)  # Amount in cents
+    currency = Column(String(3), default="eur")
+    status = Column(Enum(PaymentStatus), default=PaymentStatus.pending)
+    
+    # Payment method
+    payment_method_id = Column(String, nullable=True)
+    payment_method_type = Column(String, nullable=True)
+    
+    # Billing
+    description = Column(Text, nullable=True)
+    receipt_email = Column(String, nullable=True)
+    
+    # Processing
+    client_secret = Column(String, nullable=True)
+    confirmation_method = Column(String, nullable=True)
+    capture_method = Column(String, nullable=True)
+    
+    # Webhook data
+    stripe_webhook_event_id = Column(String, nullable=True)
+    
+    # Metadata
+    metadata = Column(Text)  # JSON string
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    customer = relationship("StripeCustomer", back_populates="payments")
+
+class PaymentMethod(Base):
+    """
+    Database model for stored payment methods.
+    Maps to Stripe's PaymentMethod API.
+    """
+    __tablename__ = "payment_methods"
+
+    id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey("stripe_customers.id"), nullable=False)
+    stripe_payment_method_id = Column(String, unique=True, index=True, nullable=False)
+    
+    # Payment method details
+    type = Column(String, index=True)  # card, bank_account, etc.
+    is_default = Column(Boolean, default=False)
+    
+    # Card details (if applicable)
+    card_brand = Column(String, nullable=True)
+    card_last4 = Column(String, nullable=True)
+    card_exp_month = Column(Integer, nullable=True)
+    card_exp_year = Column(Integer, nullable=True)
+    
+    # Billing details
+    billing_details = Column(Text, nullable=True)  # JSON string
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class WebhookEvent(Base):
+    """
+    Database model for tracking Stripe webhook events.
+    """
+    __tablename__ = "webhook_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    stripe_event_id = Column(String, unique=True, index=True, nullable=False)
+    event_type = Column(String, index=True)  # e.g., 'payment_intent.succeeded', 'customer.subscription.created'
+    
+    # Event data
+    api_version = Column(String, nullable=True)
+    created = Column(DateTime)
+    data = Column(Text)  # JSON string of event data
+    livemode = Column(Boolean, default=False)
+    
+    # Processing status
+    processed = Column(Boolean, default=False)
+    processed_at = Column(DateTime, nullable=True)
+    error_message = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
 

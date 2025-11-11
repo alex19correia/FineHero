@@ -42,3 +42,7 @@ langchain-text-splitters
 langchain-huggingface
 faiss-cpu
 sentence-transformers
+
+# Payment Processing
+stripe
+flask-cors
