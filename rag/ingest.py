@@ -17,7 +17,11 @@ from langchain_core.documents import Document as LangchainDocument
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from backend.app.models import Base, LegalDocument as DB_Document # Renamed to avoid conflict
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+
+from app.models import Base, LegalDocument as DB_Document # Renamed to avoid conflict
 
 # Define constants
 KNOWLEDGE_BASE_DIR = "knowledge_base"

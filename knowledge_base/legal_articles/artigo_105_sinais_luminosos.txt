@@ -1,0 +1,15 @@
+# Artigo 105.º — Semáforos
+
+1 - As luzes dos semáforos têm o seguinte significado:
+a) Luz vermelha constante - indicação de paragem obrigatória para todos os veículos;
+b) Luz vermelha intermitente - indicação de paragem obrigatória antes do atravessamento da via;
+c) Luz âmbar - indicação de que a luz seguinte será vermelha;
+d) Luz verde - indicação de que a circulação é permitida.
+
+2 - A luz verde autoriza a circulação, mas os condutores devem, antes de iniciar o movimento, certificar-se de que pode ser efetuado com segurança.
+
+3 - A luz vermelha obriga todos os condutores a parar antes da linha de paragem, não podendo nenhum veículo atravessar a pista de circulação.
+
+4 - No caso de semáforos com setas, a respetiva indicação prevalece sobre as outras, devendo os condutores, antes de as seguir, certificar-se de que o podem fazer com segurança.
+
+5 - No caso de semáforos avariados ou extinguidos, aplica-se o disposto no artigo 104.º.
