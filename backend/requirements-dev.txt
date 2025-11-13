@@ -1,31 +1,42 @@
-# Core testing framework
-pytest>=7.4.3
-pytest-asyncio>=0.21.1
-pytest-cov>=4.1.0
-pytest-mock>=3.12.0
-pytest-xdist>=3.5.0  # Parallel test execution
+-r requirements.txt
 
-# Testing utilities
-httpx>=0.25.2  # For API testing
-factory-boy>=3.3.0  # For test data generation
-faker>=20.1.0  # For realistic test data
-freezegun>=1.2.2  # For time mocking in tests
+# Core testing framework - Latest secure versions
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-xdist==3.5.0  # Parallel test execution
 
-# Database testing
-pytest-postgresql>=5.0.0  # For PostgreSQL testing
-sqlalchemy-utils>=0.41.1  # For database utilities in tests
+# Testing utilities - Latest secure versions
+factory-boy==3.3.0  # For test data generation
+faker==20.1.0  # For realistic test data
+freezegun==1.2.2  # For time mocking in tests
 
-# Mock external services
-responses>=0.23.3  # For mocking HTTP requests
-requests-mock>=1.11.0  # Alternative HTTP mocking
+# Database testing - Latest secure versions
+pytest-postgresql==5.0.0  # For PostgreSQL testing
+sqlalchemy-utils==0.41.1  # For database utilities in tests
 
-# Code quality and coverage
-coverage>=7.3.2
-bandit>=1.7.5  # Security linting
-safety>=2.3.5  # Dependency vulnerability scanning
+# Mock external services - Latest secure versions
+responses==0.23.3  # For mocking HTTP requests
+requests-mock==1.11.0  # Alternative HTTP mocking
 
-# Linting and formatting
-black>=23.11.0
-isort>=5.12.0
-flake8>=6.1.0
-mypy>=1.7.1
+# Code quality and coverage - Latest secure versions
+coverage==7.3.2
+bandit==1.7.5  # Security linting
+safety==2.3.5  # Dependency vulnerability scanning
+pip-audit==2.6.1  # Additional vulnerability scanning
+
+# Linting and formatting - Latest secure versions
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Security and audit tools
+semgrep==1.45.0
+trufflehog==2.1.0
+gitleaks==8.18.0
+
+# Additional security tools
+python-audit==0.1.0
+vulners==1.1.0

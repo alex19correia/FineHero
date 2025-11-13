@@ -1,0 +1,128 @@
+# Dependabot configuration for FineHero
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "security-team"
+    assignees:
+      - "devops-team"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "python"
+      - "automated"
+    # Security updates (higher priority)
+    allow:
+      - dependency-type: "direct"
+        update-type: "security"
+      - dependency-type: "indirect"
+        update-type: "security"
+    # Ignore major version updates for production-critical packages
+    ignore:
+      - dependency-name: "fastapi"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "pydantic"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "SQLAlchemy"
+        update-types: ["version-update:semver-major"]
+    # Security-focused versioning
+    versioning-strategy: increase
+
+  # Node.js dependencies
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "security-team"
+    assignees:
+      - "frontend-team"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "automated"
+    # Security updates (higher priority)
+    allow:
+      - dependency-type: "direct"
+        update-type: "security"
+      - dependency-type: "indirect"
+        update-type: "security"
+    # Ignore major version updates for core frameworks
+    ignore:
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+    # Security-focused versioning
+    versioning-strategy: increase
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "devops-team"
+    commit-message:
+      prefix: "deps-docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "infrastructure"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "devops-team"
+    commit-message:
+      prefix: "deps-actions"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci-cd"
+
+# Security vulnerability alerts configuration
+# Alerts are automatically enabled for all dependencies
+
+# Security update policy
+# - Critical security updates: Immediate (1 hour)
+# - High security updates: Within 24 hours
+# - Moderate security updates: Within 1 week
+# - Low security updates: Next scheduled update
+
+# Automated security fixes
+# - Enable automatic security fixes for Python (pip) and Node.js (npm)
+# - Require manual approval for non-security updates
+# - Automatic dependency vulnerability scanning

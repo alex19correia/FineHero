@@ -216,13 +216,13 @@ This master document consolidates research findings on official Portuguese legal
 
 ### Existing Legal Articles in Project:
 The workspace contains Portuguese legal articles derived from these sources:
-- `knowledge_base/legal_articles/artigo_48_parking.txt` - Based on Código da Estrada Article 48
-- `knowledge_base/legal_articles/artigo_49_estacionamento_proibido.txt` - Based on Código da Estrada Article 49
-- `knowledge_base/legal_articles/artigo_85_velocidade.txt` - Based on Código da Estrada Article 85
-- `knowledge_base/legal_articles/artigo_105_sinais_luminosos.txt` - Based on Código da Estrada Article 105
-- `knowledge_base/legal_articles/artigo_121_vehicle_docs.txt` - Based on Código da Estrada Article 121
-- `knowledge_base/legal_articles/artigo_135.txt` - Based on Código da Estrada Article 135
-- `knowledge_base/legal_articles/artigo_137_defesa_contestacao.txt` - Based on Código da Estrada Article 137
+- `knowledge_base/artigo_48_parking.txt` - Based on Código da Estrada Article 48
+- `knowledge_base/artigo_49_estacionamento_proibido.txt` - Based on Código da Estrada Article 49
+- `knowledge_base/artigo_85_velocidade.txt` - Based on Código da Estrada Article 85
+- `knowledge_base/artigo_105_sinais_luminosos.txt` - Based on Código da Estrada Article 105
+- `knowledge_base/artigo_121_vehicle_docs.txt` - Based on Código da Estrada Article 121
+- `knowledge_base/artigo_135.txt` - Based on Código da Estrada Article 135
+- `knowledge_base/artigo_137_defesa_contestacao.txt` - Based on Código da Estrada Article 137
 
 **Note:** Some workspace articles may contain corrupted text and require source verification against official DRE documents.
 

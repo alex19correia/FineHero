@@ -88,6 +88,7 @@ This master document consolidates the FineHero legal knowledge base structure an
 
 #### 3. Legal Letter Templates (8 templates)
 Professional defense letter templates covering all major violation types:
+*(Located in `knowledge_base/04_Modelos_Cartas/`)*
 
 1. **carta_001_estacionamento_proibido.md** - Prohibited Parking Defense
 2. **carta_002_excesso_velocidade.md** - Speeding Defense  

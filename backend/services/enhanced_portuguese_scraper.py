@@ -54,22 +54,35 @@ class EnhancedPortugueseScraper:
     """
     
     def __init__(self, config_file: str = "scraper_config.json"):
+        """
+        Initializes the EnhancedPortugueseScraper by loading configuration, setting up
+        an HTTP session, and defining various access methods and document sources.
+        This class is designed to handle complex scraping scenarios, especially
+        for restricted Portuguese legal websites.
+        
+        Args:
+            config_file: Path to the JSON configuration file for the scraper.
+        """
+        # Load scraper configuration from the specified file or use defaults.
         self.config = self._load_config(config_file)
+        
+        # Set up a requests session with custom headers and proxy settings based on config.
         self.session = self._setup_session()
         
-        # Access methods configuration
+        # Define various access methods that can be used to reach document sources.
+        # Each method has a name, enabled status, description, configuration, and a success rate.
         self.access_methods = {
             'direct': AccessMethod(
                 name="Direct Access",
                 enabled=True,
                 description="Standard HTTP requests",
                 configuration={},
-                success_rate=0.7
+                success_rate=0.7 # Heuristic success rate
             ),
             'selenium': AccessMethod(
                 name="Selenium Browser",
                 enabled=True,
-                description="Headless browser automation",
+                description="Headless browser automation for JavaScript-rendered content",
                 configuration={
                     'headless': True,
                     'window_size': '1920,1080',
@@ -79,42 +92,43 @@ class EnhancedPortugueseScraper:
             ),
             'tor': AccessMethod(
                 name="Tor Proxy",
-                enabled=False,
-                description="Tor network routing for IP anonymity",
+                enabled=False, # Disabled by default, requires Tor service running
+                description="Tor network routing for IP anonymity and bypassing geo-restrictions",
                 configuration={
-                    'proxy_url': 'socks5://127.0.0.1:9050',
+                    'proxy_url': 'socks5://127.0.0.1:9050', # Default Tor SOCKS proxy
                     'timeout': 30
                 },
-                success_rate=0.4
+                success_rate=0.4 # Lower success rate due to potential CAPTCHAs/blocks
             ),
             'vpn': AccessMethod(
                 name="VPN Proxy",
-                enabled=False,
-                description="Commercial VPN for Portuguese IP access",
+                enabled=False, # Disabled by default, requires user configuration
+                description="Commercial VPN for Portuguese IP access to bypass geo-blocking",
                 configuration={
-                    'proxy_url': None,  # Will be configured by user
-                    'country_code': 'PT'
+                    'proxy_url': None,  # User will configure this
+                    'country_code': 'PT' # Target country for VPN
                 },
-                success_rate=0.9
+                success_rate=0.9 # High success rate if properly configured
             ),
             'api_alternative': AccessMethod(
                 name="Alternative APIs",
                 enabled=True,
-                description="Use alternative APIs for Portuguese legal data",
+                description="Use alternative APIs for Portuguese legal data (e.g., open data portals)",
                 configuration={},
                 success_rate=0.6
             )
         }
         
-        # Document sources with known access issues
+        # Define the legal document sources, including their URLs, known access issues,
+        # and a list of potential access methods that might work for them.
         self.document_sources = [
             DocumentSource(
                 name="IMT - Instituto da Mobilidade e dos Transportes",
                 url="https://www.imt.pt/",
-                access_methods=["selenium", "vpn", "tor"],
-                status="restricted",
+                access_methods=["selenium", "vpn", "tor"], # Methods likely to work for IMT
+                status="restricted", # Initial status based on prior knowledge
                 last_attempt=None,
-                alternative_urls=[
+                alternative_urls=[ # Known alternative URLs for IMT
                     "https://imt-ip.pt/",
                     "https://www.imt.pt/pt/",
                     "https://apic.imt.pt/"
@@ -124,25 +138,25 @@ class EnhancedPortugueseScraper:
             DocumentSource(
                 name="ANSR - Autoridade Nacional de Segurança Rodoviária", 
                 url="https://www.ansr.pt/",
-                access_methods=["direct", "selenium", "vpn"],
-                status="failed",
+                access_methods=["direct", "selenium", "vpn"], # Methods likely to work for ANSR
+                status="failed", # Initial status based on prior knowledge
                 last_attempt=None,
-                alternative_urls=[
+                alternative_urls=[ # Known alternative URLs for ANSR
                     "https://www.ansr.pt/pt/",
                     "https://www.acm.pt/",  # ACM might handle some ANSR functions
                     "https://www.portaldocidadao.pt/"
                 ],
-                manual_download_required=True
+                manual_download_required=True # ANSR often requires manual intervention
             ),
             DocumentSource(
                 name="DRE - Diário da República",
                 url="https://dre.pt/",
-                access_methods=["direct", "selenium"],
-                status="accessible",
+                access_methods=["direct", "selenium"], # DRE is generally accessible directly
+                status="accessible", # Initial status based on prior knowledge
                 last_attempt=None,
-                alternative_urls=[
+                alternative_urls=[ # Known alternative URLs for DRE
                     "https://www.dre.pt/",
-                    "https://dre.ap就很.cn/",
+                    "https://dre.ap就很.cn/", # Example of a potential mirror/alternative
                     "https://diariodarepublica.pt/"
                 ],
                 manual_download_required=False
@@ -208,17 +222,29 @@ class EnhancedPortugueseScraper:
         return session
 
     def check_java_availability(self) -> bool:
-        """Check if Java is available for complex scraping tasks"""
+        """
+        Checks if Java Runtime Environment (JRE) is installed and accessible on the system.
+        This is important because some legacy or complex scraping tools might rely on Java.
+        It attempts to run `java -version` and tries common alternative paths if the
+        initial attempt fails.
+        
+        Returns:
+            True if Java is found and executable, False otherwise.
+        """
+        logger.info("Checking Java availability...")
         try:
+            # Attempt to run 'java -version' directly.
             result = subprocess.run(['java', '-version'], 
                                   capture_output=True, text=True, timeout=5)
             if result.returncode == 0:
                 logger.info(f"Java available: {result.stderr.strip()}")
                 return True
         except (subprocess.TimeoutExpired, FileNotFoundError):
+            # If 'java' command is not found or times out, try alternative paths.
             pass
         
-        # Try alternative Java commands
+        # Try alternative Java commands/paths.
+        # This list can be extended with other common Java installation locations.
         for java_cmd in ['java.exe', '/usr/bin/java', '/usr/lib/jvm/java/bin/java']:
             try:
                 result = subprocess.run([java_cmd, '-version'], 
@@ -227,9 +253,9 @@ class EnhancedPortugueseScraper:
                     logger.info(f"Java available at {java_cmd}: {result.stderr.strip()}")
                     return True
             except (subprocess.TimeoutExpired, FileNotFoundError):
-                continue
+                continue # Continue to the next alternative if current one fails
         
-        logger.warning("Java not found - will use Python-only alternatives")
+        logger.warning("Java not found - will use Python-only alternatives for scraping.")
         return False
 
     def enable_vpn_access(self, vpn_service: str = None) -> bool:
@@ -272,25 +298,31 @@ class EnhancedPortugueseScraper:
 
     def test_access_method(self, method_name: str, test_url: str) -> Tuple[bool, str]:
         """
-        Test a specific access method against a URL
+        Tests a specific access method against a given URL to determine its effectiveness.
+        This function acts as a dispatcher, calling the appropriate private test method
+        based on the `method_name`.
         
         Args:
-            method_name: Name of access method to test
-            test_url: URL to test access against
+            method_name: The name of the access method to test (e.g., 'direct', 'selenium', 'tor').
+            test_url: The URL to attempt accessing with the specified method.
             
         Returns:
-            Tuple of (success, message)
+            A tuple containing:
+            - bool: True if the access method was successful, False otherwise.
+            - str: A message describing the outcome (success message or error).
         """
         method = self.access_methods.get(method_name)
         if not method or not method.enabled:
-            return False, f"Access method {method_name} not available"
+            logger.warning(f"Access method '{method_name}' is not available or not enabled.")
+            return False, f"Access method {method_name} not available or not enabled"
         
         start_time = time.time()
         try:
+            # Dispatch to the appropriate test function based on the method name.
             if method_name == 'direct':
                 response = self.session.get(test_url, timeout=10)
                 if response.status_code == 200:
-                    return True, f"Direct access successful ({response.status_code})"
+                    return True, f"Direct access successful (HTTP {response.status_code})"
                 else:
                     return False, f"Direct access failed with status {response.status_code}"
             
@@ -307,8 +339,10 @@ class EnhancedPortugueseScraper:
                 return self._test_api_access(test_url)
             
         except Exception as e:
+            logger.error(f"Error testing access method '{method_name}' for URL '{test_url}': {e}")
             return False, f"Error testing {method_name}: {str(e)}"
         
+        # Fallback for unknown or unhandled access methods.
         return False, f"Unknown access method: {method_name}"
 
     def _test_selenium_access(self, test_url: str) -> Tuple[bool, str]:
@@ -390,70 +424,79 @@ class EnhancedPortugueseScraper:
 
     def scan_all_sources(self) -> Dict[str, Dict]:
         """
-        Scan all document sources with multiple access methods
+        Scans all predefined document sources by attempting to access them using
+        various configured access methods. It records the success or failure of
+        each method and provides recommendations for the best access strategy.
         
         Returns:
-            Dictionary with scan results for each source
+            A dictionary where keys are source names and values are dictionaries
+            containing detailed scan results and recommendations for each source.
         """
         results = {}
         
+        # Iterate through each document source defined in the scraper.
         for source in self.document_sources:
-            logger.info(f"Scanning source: {source.name}")
+            logger.info(f"Scanning source: {source.name} at {source.url}")
             source_results = {
                 'name': source.name,
                 'primary_url': source.url,
-                'status': source.status,
+                'status': source.status, # Initial status
                 'methods_tested': [],
                 'successful_methods': [],
                 'failed_methods': [],
                 'recommendations': []
             }
             
-            # Test each access method
+            # Test each access method configured for the current source.
             for method_name in source.access_methods:
                 source_results['methods_tested'].append(method_name)
                 
+                # Call test_access_method to try accessing the source URL with the current method.
                 success, message = self.test_access_method(method_name, source.url)
                 
                 if success:
+                    # Record successful access methods.
                     source_results['successful_methods'].append({
                         'method': method_name,
                         'message': message,
                         'timestamp': datetime.now().isoformat()
                     })
                 else:
+                    # Record failed access methods with their error messages.
                     source_results['failed_methods'].append({
                         'method': method_name,
                         'error': message,
                         'timestamp': datetime.now().isoformat()
                     })
             
-            # Determine best access method
+            # Determine the overall access status and generate recommendations.
             if source_results['successful_methods']:
-                best_method = source_results['successful_methods'][0]
+                # If any method succeeded, the source is considered accessible.
+                best_method = source_results['successful_methods'][0] # Take the first successful method as the best
                 source.status = 'accessible'
                 source_results['status'] = 'accessible'
                 source_results['recommendations'].append(
-                    f"Use {best_method['method']} for best results"
+                    f"Access successful. Recommendation: Use {best_method['method']} for best results."
                 )
             else:
+                # If all methods failed, the source is considered inaccessible.
                 source.status = 'failed'
                 source_results['status'] = 'failed'
                 source_results['recommendations'].append(
-                    "Manual download required - see manual_downloads.md"
+                    "All automated access methods failed. Manual download may be required. See manual_downloads.md for guidance."
                 )
                 
-                # Check if alternative URLs work
+                # As a fallback, check if any alternative URLs for this source are directly accessible.
                 for alt_url in source.alternative_urls:
                     alt_success, alt_message = self.test_access_method('direct', alt_url)
                     if alt_success:
                         source_results['recommendations'].append(
-                            f"Alternative URL works: {alt_url}"
+                            f"Alternative URL works: {alt_url}. Consider using this URL."
                         )
-                        break
+                        break # Stop checking alternatives once one is found
             
             results[source.name] = source_results
-            source.last_attempt = datetime.now()
+            source.last_attempt = datetime.now() # Record the time of the last scan attempt.
         
         return results
 

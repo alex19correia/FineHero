@@ -1,1 +1,49 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database
+*.db
+*.sqlite3
+sql_app.db
+
+# IDE
+.vscode/
+!.vscode/settings.json
+.idea/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Artifacts & Logs
+*.log
+logs/
+*.log.*
+*.tmp
+*.swp
+*~
+crawl4ai_test_results.json
+/frontend/security-audit-report.json
+/frontend/license-report.json
+/frontend/sbom.json
+
+# Dependencies
+node_modules/
+.pytest_cache/
 .kilocode/
+
+# OS
+.DS_Store
+Thumbs.db
+temp/

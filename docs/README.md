@@ -35,6 +35,7 @@
 
 ### For **Security & Compliance Teams**
 1. **[Security Updates - November 2025](security_updates_2025_11_11.md)** - Overview of recent security enhancements and vulnerability fixes
+2. **[Dependency Management & Security Guide](dependency_management_security_guide.md)** - Comprehensive dependency security and compliance implementation
 
 ---
 

@@ -1,0 +1,73 @@
+# Security-Specific Dependencies for FineHero
+# This file contains all security-related packages with pinned versions
+
+# Core Security Libraries
+cryptography==41.0.7
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+
+# Dependency Vulnerability Scanning
+safety==2.3.5
+pip-audit==2.6.1
+
+# Security Linting and Static Analysis
+bandit==1.7.5
+semgrep==1.45.0
+
+# Authentication and Authorization
+python-multipart==0.0.6
+PyJWT==2.8.0
+
+# HTTPS and SSL/TLS
+urllib3==2.1.0
+certifi==2023.11.17
+
+# Secure HTTP Client
+httpx==0.25.2
+
+# Secure Template Engine
+Jinja2==3.1.2
+
+# Secure Data Validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Secure File Processing
+PyPDF2==3.0.1
+pdfplumber==0.10.4
+
+# Secure Database Operations
+SQLAlchemy==2.0.23
+
+# Secure Environment Management
+python-dotenv==1.0.0
+
+# Security Headers and CORS
+flask-cors==4.0.0
+
+# Rate Limiting and Protection
+slowapi==0.1.9
+
+# Secure Logging
+structlog==23.2.0
+python-json-logger==2.0.7
+
+# OWASP Security Scanner Integration
+vulners==1.1.0
+python-audit==0.1.0
+
+# SBOM and Compliance
+cyclonedx-bom==4.1.0
+
+# Secrets Management
+keyring==24.3.0
+
+# Input Validation and Sanitization
+bleach==6.1.0
+validators==0.22.0
+
+# Secure Serialization
+orjson==3.9.10
+
+# Security Testing
+pytest-security==0.2.0

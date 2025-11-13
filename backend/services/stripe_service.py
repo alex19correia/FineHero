@@ -7,12 +7,12 @@ import json
 import os
 import stripe
 from typing import Optional, Dict, Any, List
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload, joinedload
 from sqlalchemy import and_, or_
 from datetime import datetime, timezone
 
 from ..app.models import (
-    StripeCustomer, StripeSubscription, Payment, PaymentMethod, 
+    StripeCustomer, StripeSubscription, Payment, PaymentMethod,
     WebhookEvent, User, PaymentStatus, SubscriptionStatus
 )
 
@@ -153,43 +153,65 @@ class StripeService:
     def create_subscription(self, db: Session, user_id: int, price_id: str,
                           trial_days: int = None, metadata: Dict[str, Any] = None) -> StripeSubscription:
         """
-        Create a subscription for a user.
-        """
-        # Get customer
-        stripe_customer = self.get_or_create_customer(db, user_id)
+        Creates a new subscription for a user in Stripe and records it in the local database.
+        This function handles the interaction with the Stripe API to set up the subscription
+        details, including the chosen price plan and optional trial period.
         
-        # Retrieve price information from Stripe
+        Args:
+            db: The SQLAlchemy database session.
+            user_id: The ID of the user for whom the subscription is being created.
+            price_id: The Stripe Price ID representing the subscription plan.
+            trial_days: Optional number of trial days for the subscription.
+            metadata: Optional dictionary of custom metadata to attach to the subscription.
+            
+        Returns:
+            The created StripeSubscription object from the local database.
+            
+        Raises:
+            ValueError: If the Stripe customer for the user cannot be found or created.
+        """
+        # 1. Get or create the Stripe customer for the given user.
+        #    A user must have an associated Stripe customer record to create a subscription.
+        stripe_customer = self.get_or_create_customer(db, user_id)
+        if not stripe_customer:
+            raise ValueError(f"Could not find or create Stripe customer for user {user_id}")
+        
+        # 2. Retrieve price information from Stripe.
+        #    This ensures the price_id is valid and fetches details like product ID and amount.
         price = stripe.Price.retrieve(price_id)
         
-        # Create subscription parameters
+        # 3. Prepare subscription parameters for the Stripe API call.
         subscription_params = {
             "customer": stripe_customer.stripe_customer_id,
             "items": [{"price": price_id}],
-            "payment_behavior": "default_incomplete",
+            "payment_behavior": "default_incomplete", # Ensures payment method is collected if needed
             "payment_settings": {
-                "save_default_payment_method": "on_subscription"
+                "save_default_payment_method": "on_subscription" # Saves payment method for future renewals
             },
-            "expand": ["latest_invoice.payment_intent"],
+            "expand": ["latest_invoice.payment_intent"], # Expands related objects for immediate access
             "metadata": {
-                "user_id": str(user_id),
+                "user_id": str(user_id), # Link Stripe subscription to internal user ID
                 **(metadata or {})
             }
         }
         
+        # Add trial period if specified.
         if trial_days:
             subscription_params["trial_period_days"] = trial_days
         
+        # 4. Create the subscription in Stripe.
         stripe_subscription = stripe.Subscription.create(**subscription_params)
         
-        # Create local subscription record
+        # 5. Create a local database record for the new subscription.
+        #    This mirrors essential Stripe subscription data in our system.
         subscription = StripeSubscription(
             customer_id=stripe_customer.id,
             stripe_subscription_id=stripe_subscription.id,
-            status=SubscriptionStatus(stripe_subscription.status),
+            status=SubscriptionStatus(stripe_subscription.status), # Map Stripe status to our enum
             price_id=price_id,
             product_id=price.product,
             currency=stripe_subscription.currency,
-            amount=price.unit_amount if price.unit_amount else 0,
+            amount=price.unit_amount if price.unit_amount else 0, # Amount in cents
             current_period_start=datetime.fromtimestamp(
                 stripe_subscription.current_period_start, tz=timezone.utc
             ),
@@ -201,7 +223,7 @@ class StripeService:
         
         db.add(subscription)
         db.commit()
-        db.refresh(subscription)
+        db.refresh(subscription) # Refresh to get any auto-generated fields (e.g., ID)
         
         return subscription
     
@@ -298,46 +320,79 @@ class StripeService:
     
     def construct_webhook_event(self, payload: bytes, signature: str) -> stripe.Event:
         """
-        Construct and validate webhook event.
+        Constructs and validates a Stripe webhook event. This is a critical security step
+        to ensure that incoming webhook events are genuinely from Stripe and have not been
+        tampered with. It uses the `stripe.Webhook.construct_event` method which verifies
+        the event's signature using the `STRIPE_WEBHOOK_SECRET`.
+        
+        Args:
+            payload: The raw request body of the webhook event as bytes.
+            signature: The value of the 'Stripe-Signature' header from the webhook request.
+            
+        Returns:
+            A stripe.Event object if the signature is valid.
+            
+        Raises:
+            ValueError: If the `STRIPE_WEBHOOK_SECRET` is not configured or if the
+                        webhook signature is invalid.
         """
         try:
+            # Ensure the webhook secret is configured. Without it, validation cannot occur.
             if not self.webhook_secret:
                 raise ValueError("STRIPE_WEBHOOK_SECRET is required for webhook validation")
             
+            # Use Stripe's utility function to construct the event. This function
+            # automatically verifies the signature against the secret.
             return stripe.Webhook.construct_event(
                 payload, signature, self.webhook_secret
             )
         except ValueError as e:
+            # Catch specific ValueError for invalid signatures.
             raise ValueError(f"Invalid webhook signature: {e}")
         except Exception as e:
+            # Catch any other exceptions during event construction.
             raise ValueError(f"Error constructing webhook event: {e}")
     
     def handle_webhook_event(self, db: Session, event: stripe.Event) -> bool:
         """
-        Handle incoming webhook events.
+        Handles incoming Stripe webhook events. This function acts as an idempotent
+        dispatcher, ensuring that each event is processed only once and correctly
+        updates the local database state based on the Stripe event type.
+        
+        Args:
+            db: The SQLAlchemy database session.
+            event: The stripe.Event object received from Stripe.
+            
+        Returns:
+            True if the event was successfully processed, False otherwise.
         """
-        # Check if event already processed
+        # 1. Idempotency check: Prevent reprocessing of duplicate events.
+        #    Stripe can send the same event multiple times, so it's crucial to check
+        #    if this event ID has already been recorded and processed.
         existing_event = db.query(WebhookEvent).filter(
             WebhookEvent.stripe_event_id == event.id
         ).first()
         
         if existing_event:
-            return existing_event.processed
+            logger.info(f"Webhook event {event.id} (type: {event.type}) already processed. Skipping.")
+            return existing_event.processed # Return its previous processing status
         
-        # Create webhook event record
+        # 2. Record the incoming webhook event in the local database.
+        #    This provides an audit trail and allows for manual inspection or reprocessing if needed.
         webhook_event = WebhookEvent(
             stripe_event_id=event.id,
             event_type=event.type,
             api_version=event.api_version,
             created=datetime.fromtimestamp(event.created, tz=timezone.utc),
-            data=json.dumps(event.data.object.to_dict()),
+            data=json.dumps(event.data.object.to_dict()), # Store the full event data
             livemode=event.livemode
         )
         
         db.add(webhook_event)
         
         try:
-            # Handle specific event types
+            # 3. Delegate event handling to specific private methods based on event type.
+            #    This keeps the logic modular and easier to manage for different event types.
             if event.type == "payment_intent.succeeded":
                 self._handle_payment_intent_succeeded(db, event.data.object)
             elif event.type == "payment_intent.payment_failed":
@@ -353,18 +408,22 @@ class StripeService:
             elif event.type == "invoice.payment_failed":
                 self._handle_invoice_payment_failed(db, event.data.object)
             
-            # Mark event as processed
+            # 4. Mark the webhook event as successfully processed.
             webhook_event.processed = True
             webhook_event.processed_at = datetime.utcnow()
             
-            db.commit()
+            db.commit() # Commit all changes within this transaction
+            logger.info(f"Successfully processed webhook event {event.id} (type: {event.type}).")
             return True
             
         except Exception as e:
-            # Log error and mark as failed
+            # 5. Handle errors during event processing.
+            #    Rollback the transaction, log the error, and mark the event as failed.
+            db.rollback() # Rollback any changes made during this event's processing
             webhook_event.error_message = str(e)
-            db.commit()
-            print(f"Error processing webhook event {event.id}: {e}")
+            webhook_event.processed = False # Mark as not processed due to error
+            db.commit() # Commit the error state
+            logger.error(f"Error processing webhook event {event.id} (type: {event.type}): {e}")
             return False
     
     def _handle_payment_intent_succeeded(self, db: Session, payment_intent: stripe.PaymentIntent):
@@ -420,20 +479,35 @@ class StripeService:
                 db.add(new_subscription)
     
     def _handle_subscription_updated(self, db: Session, subscription: stripe.Subscription):
-        """Handle subscription updates."""
-        # Find and update subscription record
+        """
+        Handles the `customer.subscription.updated` webhook event from Stripe.
+        This function updates an existing local subscription record to reflect changes
+        made in Stripe, such as status changes, period end dates, or cancellation information.
+        
+        Args:
+            db: The SQLAlchemy database session.
+            subscription: The Stripe Subscription object from the webhook event data.
+        """
+        # Find the existing subscription record in the local database using its Stripe ID.
         existing_sub = db.query(StripeSubscription).filter(
             StripeSubscription.stripe_subscription_id == subscription.id
         ).first()
         
         if existing_sub:
+            # Update the local subscription's status to match Stripe's current status.
             existing_sub.status = SubscriptionStatus(subscription.status)
+            
+            # Update the current period start and end dates. These can change due to
+            # upgrades, downgrades, or other subscription modifications.
             existing_sub.current_period_start = datetime.fromtimestamp(
                 subscription.current_period_start, tz=timezone.utc
             )
             existing_sub.current_period_end = datetime.fromtimestamp(
                 subscription.current_period_end, tz=timezone.utc
             )
+            
+            # Update cancellation-related fields. These fields are populated if the
+            # subscription is scheduled for cancellation or has been canceled.
             existing_sub.cancel_at = datetime.fromtimestamp(
                 subscription.cancel_at, tz=timezone.utc
             ) if subscription.cancel_at else None
@@ -441,6 +515,10 @@ class StripeService:
             existing_sub.canceled_at = datetime.fromtimestamp(
                 subscription.canceled_at, tz=timezone.utc
             ) if subscription.canceled_at else None
+        else:
+            # Log a warning if the subscription is not found locally. This might indicate
+            # an out-of-sync state or an event for a subscription not created by our system.
+            logger.warning(f"Received subscription.updated event for unknown subscription ID: {subscription.id}")
     
     def _handle_subscription_deleted(self, db: Session, subscription: stripe.Subscription):
         """Handle subscription deletion."""
@@ -478,10 +556,12 @@ class StripeService:
                 subscription.status = SubscriptionStatus.past_due
     
     def get_user_subscriptions(self, db: Session, user_id: int) -> List[StripeSubscription]:
-        """Get all subscriptions for a user."""
-        return db.query(StripeSubscription).join(StripeCustomer).filter(
-            StripeCustomer.user_id == user_id
-        ).all()
+            """Get all subscriptions for a user with eager loading of customer info."""
+            return db.query(StripeSubscription).options(
+                joinedload(StripeSubscription.customer)
+            ).join(StripeCustomer).filter(
+                StripeCustomer.user_id == user_id
+            ).all()
     
     def get_user_payments(self, db: Session, user_id: int) -> List[Payment]:
         """Get all payments for a user."""

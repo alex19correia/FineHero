@@ -449,17 +449,36 @@ def payment_health_check():
         return {"status": "unhealthy", "stripe": f"disconnected: {str(e)}"}
 
 
-# Temporary placeholder for authentication dependency
-def get_current_user():
+# Import proper authentication dependencies from existing auth system
+from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status
+
+# Reuse the OAuth2 scheme and authentication logic from auth endpoints
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """
-    Temporary placeholder for authentication dependency.
-    Will be implemented when user authentication is added.
+    Secure JWT token-based authentication dependency.
+    Replaces the insecure placeholder with proper token validation.
     """
-    # For now, return a mock user with ID 1
-    # In the real implementation, this would extract user from JWT token
-    from ..models import User
-    user = User()
-    user.id = 1
-    user.email = "test@example.com"
-    user.full_name = "Test User"
+    from app.auth import verify_token
+    from app.models import User
+    
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    token_data = verify_token(token)
+    if token_data is None:
+        raise credentials_exception
+    
+    user = db.query(User).filter(User.email == token_data["email"]).first()
+    if user is None:
+        raise credentials_exception
+    
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    
     return user

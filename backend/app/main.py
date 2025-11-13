@@ -1,9 +1,21 @@
 from fastapi import FastAPI
 from datetime import datetime, timezone
+import logging
 from ..core.config import settings
 from .api.v1.endpoints import fines, defenses, rag, quality, analytics, knowledge_base, auth, payments
+from .middleware.error_handler import add_error_middleware
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger("finehero")
 
 app = FastAPI(title=settings.APP_NAME)
+
+# Add centralized error handling middleware
+add_error_middleware(app, logger)
 
 # Register authentication endpoints
 app.include_router(auth.router, prefix="/api/v1", tags=["authentication"])

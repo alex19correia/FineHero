@@ -155,38 +155,49 @@ class QualityScoringEngine:
 
     def calculate_comprehensive_quality_score(self, document: LegalDocument) -> QualityMetrics:
         """
-        Calculate comprehensive quality score for a legal document.
+        Calculates a comprehensive quality score for a given legal document by aggregating
+        scores from various sub-assessments. Each sub-assessment evaluates a specific aspect
+        of the document's quality, relevance, and reliability.
         
         Args:
-            document: LegalDocument object
+            document: The LegalDocument object for which to calculate the quality score.
             
         Returns:
-            QualityMetrics object with detailed scoring breakdown
+            A QualityMetrics object containing the overall score and a breakdown of
+            individual quality components.
         """
         logger.info(f"Calculating quality score for document: {document.title}")
         
-        # Content quality assessment
+        # 1. Content quality assessment: Evaluates the structural integrity, length,
+        #    and linguistic quality of the document's text.
         content_quality = self._assess_content_quality(document.extracted_text)
         
-        # Legal relevance scoring
+        # 2. Legal relevance scoring: Determines how pertinent the document's content is
+        #    to the domain of traffic fine defense, based on keyword analysis.
         relevance_score = self._assess_legal_relevance(document.extracted_text)
         
-        # Authority scoring
+        # 3. Authority scoring: Assesses the trustworthiness and official standing of the
+        #    document's source (e.g., ANSR, Diário da República).
         authority_score = self._assess_authority_score(document.source)
         
-        # Freshness scoring
+        # 4. Freshness scoring: Evaluates the recency of the document, as legal validity
+        #    can be time-sensitive.
         freshness_score = self._assess_freshness_score(document.publication_date)
         
-        # Completeness scoring
+        # 5. Completeness scoring: Checks if essential metadata (title, URL, date, etc.)
+        #    is present, indicating a well-formed and usable document.
         completeness_score = self._assess_completeness(document)
         
-        # Legal accuracy scoring
+        # 6. Legal accuracy scoring: Analyzes the presence and proper formatting of
+        #    legal citations and references within the text.
         legal_accuracy_score = self._assess_legal_accuracy(document.extracted_text)
         
-        # Source reliability
+        # 7. Source reliability: A more granular assessment of the source's overall
+        #    dependability, potentially incorporating external factors.
         source_reliability = self._assess_source_reliability(document)
         
-        # Calculate weighted overall score
+        # Define weights for each quality component. These weights are heuristics
+        # and can be tuned based on domain expertise or machine learning.
         weights = {
             'content': 0.25,
             'relevance': 0.30,
@@ -196,6 +207,7 @@ class QualityScoringEngine:
             'accuracy': 0.05
         }
         
+        # Calculate the overall weighted score.
         overall_score = (
             content_quality * weights['content'] +
             relevance_score * weights['relevance'] +
@@ -205,6 +217,7 @@ class QualityScoringEngine:
             legal_accuracy_score * weights['accuracy']
         )
         
+        # Assemble all calculated metrics into a QualityMetrics object.
         metrics = QualityMetrics(
             overall_score=overall_score,
             content_quality=content_quality,
@@ -222,39 +235,54 @@ class QualityScoringEngine:
         return metrics
 
     def _assess_content_quality(self, content: str) -> float:
-        """Assess content quality based on structure and completeness."""
+        """
+        Assesses the quality of the document's content based on its length,
+        the presence of structural legal elements, and typical Portuguese legal phrasing.
+        
+        Args:
+            content: The extracted text content of the legal document.
+            
+        Returns:
+            A float score between 0.0 and 1.0 representing content quality.
+        """
         if not content:
             return 0.0
         
         content_lower = content.lower()
         
-        # Length quality (ideal range: 500-5000 characters)
+        # 1. Length quality (40% contribution to content quality)
+        # Documents within a certain length range are considered more complete and informative.
         length_score = 0.0
         content_length = len(content.strip())
         
-        if 500 <= content_length <= 5000:
+        if 500 <= content_length <= 5000: # Optimal length range
             length_score = 1.0
-        elif content_length >= 200:
+        elif content_length >= 200:       # Sufficient length
             length_score = 0.7
-        elif content_length >= 100:
+        elif content_length >= 100:       # Minimal length
             length_score = 0.4
-        else:
+        else:                             # Very short content
             length_score = 0.1
         
-        # Structural elements score
+        # 2. Structural elements score (30% contribution to content quality)
+        # Presence of legal structural markers (articles, chapters, etc.) indicates
+        # a well-formatted and official legal document.
         structural_score = 0.0
         structural_elements = [
-            r'artigo\s+\d+',  # Articles
+            r'artigo\s+\d+',  # Articles (e.g., "Artigo 123")
             r'capítulo',      # Chapters
             r'secção',        # Sections
-            r'§\s*\d+',       # Paragraphs
-            r'\[.*?\]'        # References
+            r'§\s*\d+',       # Paragraphs (e.g., "§ 1")
+            r'\[.*?\]'        # Common pattern for references or annotations
         ]
         
+        # Count matches for each structural pattern
         structure_matches = sum(len(re.findall(pattern, content_lower)) for pattern in structural_elements)
+        # Score is capped at 1.0, with each match contributing 0.1 (heuristic)
         structural_score = min(1.0, structure_matches * 0.1)
         
-        # Language quality (Portuguese legal language patterns)
+        # 3. Language quality (30% contribution to content quality)
+        # Presence of typical legal phrases in Portuguese indicates formal legal language.
         language_score = 0.0
         legal_phrases = [
             'nos termos', 'de acordo com', 'em conformidade', 'face ao',
@@ -262,13 +290,24 @@ class QualityScoringEngine:
         ]
         
         phrase_matches = sum(1 for phrase in legal_phrases if phrase in content_lower)
+        # Score is capped at 1.0, with each phrase match contributing 0.15 (heuristic)
         language_score = min(1.0, phrase_matches * 0.15)
         
-        # Combine scores
+        # Combine the three sub-scores with their respective weights for content quality.
         return (length_score * 0.4 + structural_score * 0.3 + language_score * 0.3)
 
     def _assess_legal_relevance(self, content: str) -> float:
-        """Assess legal relevance to traffic fine defense."""
+        """
+        Assesses the legal relevance of the document's content to traffic fine defense
+        by analyzing the presence and density of specific keywords. Keywords are categorized
+        into primary, secondary, and procedural, each contributing differently to the score.
+        
+        Args:
+            content: The extracted text content of the legal document.
+            
+        Returns:
+            A float score between 0.0 and 1.0 representing legal relevance.
+        """
         if not content:
             return 0.0
         
@@ -279,27 +318,28 @@ class QualityScoringEngine:
         if total_words == 0:
             return 0.0
         
-        # Primary keywords (highest weight)
+        # 1. Primary keywords (highest weight): Directly related to traffic fines and violations.
         primary_matches = sum(1 for keyword in self.legal_keywords['primary'] 
                             if keyword in content_lower)
-        primary_score = min(1.0, primary_matches * 0.2)
+        primary_score = min(1.0, primary_matches * 0.2) # Each match contributes, capped at 1.0
         
-        # Secondary keywords
+        # 2. Secondary keywords: Related to legal authority, enforcement, and safety.
         secondary_matches = sum(1 for keyword in self.legal_keywords['secondary'] 
                               if keyword in content_lower)
-        secondary_score = min(0.8, secondary_matches * 0.15)
+        secondary_score = min(0.8, secondary_matches * 0.15) # Capped at 0.8
         
-        # Procedural keywords
+        # 3. Procedural keywords: Related to legal processes, notifications, and appeals.
         procedural_matches = sum(1 for keyword in self.legal_keywords['procedural'] 
                                if keyword in content_lower)
-        procedural_score = min(0.6, procedural_matches * 0.1)
+        procedural_score = min(0.6, procedural_matches * 0.1) # Capped at 0.6
         
-        # Calculate keyword density
+        # Calculate keyword density: The proportion of relevant keywords in the document.
         keyword_density = (primary_matches + secondary_matches + procedural_matches) / total_words * 100
         
-        # Relevance based on density and keyword importance
-        density_score = min(1.0, keyword_density / 2.0)  # 2% density = full score
+        # Density score: A higher density indicates more focused content.
+        density_score = min(1.0, keyword_density / 2.0)  # Heuristic: 2% density = full score
         
+        # Combine the scores from different keyword categories and density.
         return (primary_score * 0.5 + secondary_score * 0.3 + 
                 procedural_score * 0.1 + density_score * 0.1)
 
@@ -364,37 +404,48 @@ class QualityScoringEngine:
         return min(1.0, score)
 
     def _assess_legal_accuracy(self, content: str) -> float:
-        """Assess legal accuracy based on citations and references."""
+        """
+        Assesses the legal accuracy of the document by analyzing the presence and
+        correct formatting of legal citations and references.
+        
+        Args:
+            content: The extracted text content of the legal document.
+            
+        Returns:
+            A float score between 0.0 and 1.0 representing legal accuracy.
+        """
         if not content:
             return 0.0
         
         content_lower = content.lower()
         accuracy_score = 0.0
         
-        # Citation analysis
+        # 1. Citation analysis: Count how many legal citations are present.
         citation_count = 0
         for pattern_type, pattern in self.citation_patterns.items():
             citations = re.findall(pattern, content_lower)
             citation_count += len(citations)
         
-        # Score based on citation density (not too many, not too few)
-        if 1 <= citation_count <= 10:
+        # Score based on citation density: An optimal number of citations suggests good accuracy.
+        # Too few might mean lack of legal grounding, too many might mean verbosity without substance.
+        if 1 <= citation_count <= 10: # Optimal range for citations
             accuracy_score = 0.8
-        elif citation_count == 0:
-            accuracy_score = 0.3  # Some legal accuracy expected
-        elif citation_count <= 20:
+        elif citation_count == 0:     # No citations, low accuracy
+            accuracy_score = 0.3  
+        elif citation_count <= 20:    # Moderate number of citations
             accuracy_score = 0.6
-        else:
-            accuracy_score = 0.4  # Too many citations might indicate poor quality
+        else:                         # Potentially excessive citations
+            accuracy_score = 0.4  
         
-        # Legal reference accuracy (check for proper legal numbering)
-        legal_numbers = re.findall(r'\b\d+(?:-\d+)?\b', content)
+        # 2. Legal reference accuracy: Verify if numerical references are associated with legal terms.
+        legal_numbers = re.findall(r'\b\d+(?:-\d+)?\b', content) # Find all numbers that could be legal references
         proper_legal_refs = sum(1 for num in legal_numbers if 
                               re.search(rf'\b{num}\b.*(?:artigo|lei|decreto)', content_lower))
         
+        # Adjust accuracy score based on the proportion of proper legal references.
         if legal_numbers:
             reference_accuracy = proper_legal_refs / len(legal_numbers)
-            accuracy_score = (accuracy_score + reference_accuracy) / 2
+            accuracy_score = (accuracy_score + reference_accuracy) / 2 # Average with citation score
         
         return accuracy_score
 
@@ -591,25 +642,37 @@ class QualityScoringEngine:
 
     def continuous_learning_update(self, feedback_data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Update quality scoring model based on user feedback.
+        Updates the quality scoring model based on user feedback, enabling a continuous
+        learning loop. This function analyzes feedback patterns to dynamically adjust
+        quality thresholds and potentially feature weights, making the scoring system
+        more adaptive and accurate over time.
         
         Args:
-            feedback_data: List of feedback dictionaries with 'document_id', 'rating', 'reason'
+            feedback_data: A list of dictionaries, where each dictionary contains user
+                           feedback for a document, including 'document_id', 'rating', and 'reason'.
             
         Returns:
-            Dictionary with learning update statistics
+            A dictionary containing statistics about the learning update, including
+            processed feedback entries, updated thresholds, and feature weights.
         """
         logger.info(f"Processing {len(feedback_data)} feedback entries for continuous learning")
         
-        # Analyze feedback patterns
+        # 1. Analyze feedback patterns: Categorize feedback into positive/negative
+        #    and calculate average quality scores for each category.
         feedback_analysis = self._analyze_feedback_patterns(feedback_data)
         
-        # Update quality thresholds based on feedback
+        # 2. Update quality thresholds: Adjust the 'high', 'medium', and 'low' quality
+        #    thresholds based on the insights from user feedback. This makes the system
+        #    more aligned with user perception of quality.
         updated_thresholds = self._update_quality_thresholds(feedback_analysis)
         
-        # Update feature weights based on successful documents
+        # 3. Update feature weights: (Placeholder for a more advanced ML-driven approach)
+        #    In a production system, this step would involve training a machine learning
+        #    model to adjust the weights of different quality features based on how
+        #    they correlate with positive or negative user feedback.
         updated_weights = self._update_feature_weights(feedback_data)
         
+        # Compile statistics about the learning update.
         learning_stats = {
             'feedback_entries_processed': len(feedback_data),
             'quality_distribution_feedback': feedback_analysis,

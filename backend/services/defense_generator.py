@@ -17,23 +17,31 @@ class DefenseGenerator:
 
     def __init__(self, fine_data: Fine):
         """
-        Initialize with the structured fine data and the RAG retriever.
+        Initializes the DefenseGenerator with structured fine data and sets up
+        the RAG retriever and Gemini AI API (if available and configured).
+        
+        Args:
+            fine_data: A Fine object containing the details of the traffic fine.
         """
         self.fine_data = fine_data
-        self.retriever = RAGRetriever()
-        self.logger = logging.getLogger(__name__)
+        self.retriever = RAGRetriever() # Initialize the RAG retriever for context retrieval
+        self.logger = logging.getLogger(__name__) # Set up logger for this class
         
-        # Initialize Gemini API if available
+        # Attempt to initialize Gemini API if the 'google.generativeai' module is imported
+        # and the GOOGLE_AI_API_KEY is provided in the environment settings.
         if genai and settings.GOOGLE_AI_API_KEY:
             try:
                 genai.configure(api_key=settings.GOOGLE_AI_API_KEY)
+                # Use 'gemini-1.5-flash' model for faster responses, suitable for defense generation.
                 self.model = genai.GenerativeModel('gemini-1.5-flash')
                 self.gemini_available = True
                 self.logger.info("Gemini API initialized successfully")
             except Exception as e:
+                # Log any errors during Gemini API initialization.
                 self.logger.error(f"Failed to initialize Gemini API: {e}")
                 self.gemini_available = False
         else:
+            # If genai module is not imported or API key is missing, mark Gemini as unavailable.
             self.gemini_available = False
             self.logger.warning("Gemini API not available or API key not configured")
 
@@ -46,25 +54,36 @@ class DefenseGenerator:
 
     def generate_prompt(self) -> str:
         """
-        Generates a detailed prompt for the AI based on the fine data
-        and retrieved legal context.
+        Generates a detailed prompt for the AI based on the fine data and
+        retrieved legal context. This prompt instructs the AI to act as a
+        Portuguese legal expert and construct a formal administrative defense.
+        
+        Returns:
+            A string containing the comprehensive prompt for the AI.
         """
         self.logger.info("Generating prompt for AI defense...")
         
-        # Create a query for the RAG retriever based on the fine data
+        # 1. Create a query for the RAG retriever.
+        #    The query is constructed from the fine data to retrieve highly relevant
+        #    legal documents or precedents that can inform the AI's defense generation.
         rag_query = (
             f"traffic fine in {self.fine_data.location} for infraction code "
             f"{self.fine_data.infraction_code} on {self.fine_data.date}"
         )
         
-        # Retrieve relevant legal context
+        # 2. Retrieve relevant legal context using the RAG retriever.
+        #    This step grounds the AI's response in factual and up-to-date legal information.
         try:
             retrieved_context = self.retriever.retrieve(rag_query)
+            # Format the retrieved context into a string to be included in the prompt.
             context_str = "\n\nRelevant Legal Context:\n" + "\n---\n".join(retrieved_context) if retrieved_context else ""
         except Exception as e:
             self.logger.warning(f"Failed to retrieve RAG context: {e}")
-            context_str = ""
-
+            context_str = "" # Proceed without RAG context if retrieval fails
+        
+        # 3. Construct the main AI prompt.
+        #    The prompt includes role-playing instructions, sanitized fine details,
+        #    the retrieved legal context, and specific formatting requirements.
         prompt = (
             "Please act as a legal expert in Portuguese traffic law. "
             "Generate an administrative defense for the following traffic fine:\n\n"
@@ -82,27 +101,41 @@ class DefenseGenerator:
 
     def request_defense(self, prompt: str) -> str:
         """
-        Generate defense using Gemini AI API or fallback to template.
+        Attempts to generate a legal defense using the configured Gemini AI API.
+        If the Gemini API is not available, fails to respond, or encounters an error,
+        it gracefully falls back to generating a defense using a predefined template.
+        
+        Args:
+            prompt: The detailed prompt string to send to the AI model.
+            
+        Returns:
+            A string containing the generated legal defense.
         """
         self.logger.info("Requesting defense from AI...")
         
+        # Check if the Gemini AI API is available and successfully initialized.
         if self.gemini_available:
             try:
                 self.logger.debug("Calling Gemini API...")
+                # Send the prompt to the Gemini model to generate content.
                 response = self.model.generate_content(prompt)
                 
+                # Check if the AI response is valid and contains text.
                 if response and response.text:
                     generated_defense = response.text.strip()
                     self.logger.info("Successfully generated defense using AI")
                     return generated_defense
                 else:
+                    # If AI response is empty, log a warning and fall back to template.
                     self.logger.warning("AI response was empty, falling back to template")
                     return self._get_template_defense()
                     
             except Exception as e:
+                # If any error occurs during AI generation, log it and fall back to template.
                 self.logger.error(f"AI generation failed: {e}")
                 return self._get_template_defense()
         else:
+            # If Gemini AI is not available, directly use the template defense.
             self.logger.info("Using template defense (AI not available)")
             return self._get_template_defense()
     

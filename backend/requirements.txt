@@ -1,48 +1,72 @@
-# FastAPI and web server
-fastapi
-uvicorn[standard]
-python-multipart
-Jinja2
+# FastAPI and web server - Latest secure versions
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+Jinja2==3.1.2
 
-# Pydantic for data validation (often a specific version is used with FastAPI)
-pydantic
-pydantic-settings
+# Pydantic for data validation - Latest secure versions
+pydantic==2.5.0
+pydantic-settings==2.1.0
 
-# Database
-SQLAlchemy
+# Database - Latest secure versions
+SQLAlchemy==2.0.23
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+alembic==1.13.0
 
-# Environment variables
-python-dotenv
+# Redis and caching - Latest secure versions
+redis==5.0.1
+celery==5.3.4
 
-# Authentication
-python-jose[cryptography]
-passlib[bcrypt]
-python-multipart
+# Environment variables - Latest secure versions
+python-dotenv==1.0.0
 
-# PDF and OCR processing
-pandas
-PyPDF2
-pdfplumber
-pytesseract
-easyocr
+# Authentication - Latest secure versions
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
 
-# HTTP requests
-requests
-httpx
-beautifulsoup4
+# PDF and OCR processing - Secure pinned versions
+pandas==2.1.4
+PyPDF2==3.0.1
+pdfplumber==0.10.4
+pytesseract==0.3.10
+easyocr==1.7.0
 
-# AI and ML
-google-generativeai
-transformers
+# HTTP requests - Latest secure versions
+requests==2.31.0
+httpx==0.25.2
+beautifulsoup4==4.12.2
 
-# RAG and Vector Store
-langchain
-langchain-community
-langchain-text-splitters
-langchain-huggingface
-faiss-cpu
-sentence-transformers
+# AI and ML - Latest secure versions
+google-generativeai==0.3.1
+transformers==4.36.0
 
-# Payment Processing
-stripe
-flask-cors
+# RAG and Vector Store - Latest secure versions
+langchain==0.1.0
+langchain-community==0.0.10
+langchain-text-splitters==0.0.1
+langchain-huggingface==0.0.1
+faiss-cpu==1.7.4
+sentence-transformers==2.2.2
+
+# Payment Processing - Latest secure versions
+stripe==7.8.0
+flask-cors==4.0.0
+
+# Security hardening dependencies
+cryptography==41.0.7
+
+# Production monitoring and performance - Latest secure versions
+prometheus-client==0.19.0
+psutil==5.9.6
+structlog==23.2.0
+opentelemetry-api==1.21.0
+opentelemetry-sdk==1.21.0
+
+# Additional production utilities - Latest secure versions
+python-json-logger==2.0.7
+gunicorn==21.2.0
+prometheus-flask-exporter==0.23.0
+
+# SBOM generation for compliance
+cyclonedx-bom==4.1.0

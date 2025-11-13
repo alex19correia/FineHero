@@ -146,25 +146,33 @@ class PortugueseLegalScraper:
                      use_selenium: bool = False) -> Optional[requests.Response]:
         """
         Make HTTP request with comprehensive error handling and rate limiting.
+        This function handles retries, exponential backoff, and checks for already processed URLs.
         
         Args:
-            url: Target URL
-            method: HTTP method (GET or POST)
-            data: Request payload for POST requests
-            use_selenium: Whether to use Selenium for JavaScript-heavy pages
+            url: Target URL for the HTTP request.
+            method: HTTP method to use (GET or POST). Defaults to "GET".
+            data: Request payload for POST requests.
+            use_selenium: If True, uses Selenium for JavaScript-heavy pages.
             
         Returns:
-            Response object or None if failed
+            Response object if the request is successful and content type is HTML or PDF,
+            otherwise None.
         """
+        # Check if the URL has already been processed to avoid redundant requests
         if url in self.seen_urls:
             logger.info(f"Skipping already processed URL: {url}")
             return None
             
+        # Apply rate limiting delay to avoid overwhelming the server
         time.sleep(random.uniform(self.rate_limit_delay * 0.5, self.rate_limit_delay * 1.5))
         
+        # Attempt the request multiple times with retries
         for attempt in range(self.max_retries):
             try:
+                # Use Selenium if specified for dynamic content
                 if use_selenium:
+                    # Selenium returns page source directly, not a requests.Response object
+                    # This needs to be handled by the caller or converted if a uniform return is desired
                     return self._selenium_request(url)
                 elif method.upper() == "GET":
                     response = self.session.get(url, timeout=15)
@@ -174,46 +182,62 @@ class PortugueseLegalScraper:
                     logger.warning(f"Unsupported HTTP method: {method}")
                     return None
                 
+                # Raise an HTTPError for bad responses (4xx or 5xx)
                 response.raise_for_status()
                 
-                # Check if response is HTML or PDF
+                # Check if response is HTML or PDF, as these are the expected document types
                 content_type = response.headers.get('Content-Type', '').lower()
                 if 'text/html' in content_type or 'application/xhtml+xml' in content_type:
+                    self.seen_urls.add(url) # Mark URL as seen only on successful HTML/XHTML retrieval
                     return response
                 elif 'application/pdf' in content_type:
+                    self.seen_urls.add(url) # Mark URL as seen only on successful PDF retrieval
                     return response
                 else:
                     logger.warning(f"Unexpected content type for {url}: {content_type}")
                     return None
                     
             except (requests.exceptions.RequestException, TimeoutException) as e:
+                # Log warning for failed attempts and apply exponential backoff
                 logger.warning(f"Request to {url} failed (attempt {attempt + 1}/{self.max_retries}): {e}")
                 if attempt == self.max_retries - 1:
-                    return None
+                    return None # All retries exhausted
                 time.sleep(2 ** attempt)  # Exponential backoff
                     
         return None
 
     def _selenium_request(self, url: str) -> Optional[str]:
-        """Use Selenium for JavaScript-heavy pages."""
+        """
+        Use Selenium for JavaScript-heavy pages that cannot be scraped with direct HTTP requests.
+        Configures a headless Chrome browser to fetch the fully rendered page source.
+        
+        Args:
+            url: The URL to fetch using Selenium.
+            
+        Returns:
+            The page source (HTML) as a string if successful, otherwise None.
+        """
         try:
+            # Configure Chrome options for headless execution
             chrome_options = Options()
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--headless")  # Run Chrome in headless mode (without GUI)
+            chrome_options.add_argument("--no-sandbox") # Required for running in some environments (e.g., Docker)
+            chrome_options.add_argument("--disable-dev-shm-usage") # Overcomes limited resource problems in Docker
+            chrome_options.add_argument("--disable-gpu") # Advised for headless mode
             
+            # Initialize the Chrome WebDriver
             driver = webdriver.Chrome(options=chrome_options)
-            driver.set_page_load_timeout(15)
-            driver.get(url)
+            driver.set_page_load_timeout(15) # Set a timeout for the page to load
+            driver.get(url) # Navigate to the specified URL
             
-            # Wait for dynamic content
+            # Wait for dynamic content to be present on the page.
+            # This is crucial for JavaScript-rendered content to ensure the page is fully loaded.
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.TAG_NAME, "body"))
             )
             
-            page_source = driver.page_source
-            driver.quit()
+            page_source = driver.page_source # Get the fully rendered HTML content
+            driver.quit() # Close the browser
             
             return page_source
             
@@ -222,64 +246,81 @@ class PortugueseLegalScraper:
             return None
 
     def _extract_publication_date(self, text: str) -> Optional[date]:
-        """Extract publication date from Portuguese legal text."""
+        """
+        Extracts a publication date from a given text, supporting various Portuguese and ISO date formats.
+        It iterates through predefined patterns and attempts to parse the date.
+        
+        Args:
+            text: The text content from which to extract the date.
+            
+        Returns:
+            A datetime.date object if a date is successfully extracted, otherwise None.
+        """
         text_lower = text.lower()
         
+        # Iterate through each defined date pattern
         for pattern in self.date_patterns:
             matches = re.findall(pattern, text_lower, re.IGNORECASE)
             if matches:
                 try:
-                    # Handle different date formats
-                    if 'de' in text_lower:  # Portuguese format
+                    # Handle different date formats based on the pattern structure
+                    if 'de' in text_lower:  # Portuguese format like "15 de janeiro de 2024"
                         match = matches[0] if isinstance(matches[0], tuple) else matches[0]
                         day, month_pt, year = match
                         
-                        # Portuguese month names
+                        # Map Portuguese month names to their numerical representation
                         months_pt = {
                             'janeiro': 1, 'fevereiro': 2, 'março': 3, 'abril': 4,
                             'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8,
                             'setembro': 9, 'outubro': 10, 'novembro': 11, 'dezembro': 12
                         }
                         
-                        month = months_pt.get(month_pt, 1)
+                        month = months_pt.get(month_pt, 1) # Default to 1 if month not found (shouldn't happen with good patterns)
                         return date(int(year), month, int(day))
-                    else:  # ISO or other formats
+                    else:  # ISO (YYYY-MM-DD) or DD/MM/YYYY, DD.MM.YYYY formats
                         match = matches[0] if isinstance(matches[0], tuple) else matches[0]
                         if len(match) == 3:
+                            # Assuming order is YYYY, MM, DD or DD, MM, YYYY based on pattern
+                            # For simplicity, assuming the pattern itself ensures correct order
                             year, month, day = match
                             return date(int(year), int(month), int(day))
                 except (ValueError, KeyError):
+                    # Continue to the next pattern if parsing fails for the current one
                     continue
                     
-        return None
+        return None # No date found after trying all patterns
 
     def _calculate_quality_score(self, doc: LegalDocument) -> float:
         """
-        Calculate quality score for legal document based on multiple factors.
+        Calculates a comprehensive quality score for a legal document based on several weighted factors.
+        The score ranges from 0.0 to 1.0, indicating the perceived utility and relevance of the document.
         
         Args:
-            doc: LegalDocument object
+            doc: The LegalDocument object to be scored.
             
         Returns:
-            Quality score between 0.0 and 1.0
+            A float representing the calculated quality score.
         """
         score = 0.0
         
-        # Content quality (40%)
-        if len(doc.content.strip()) > 500:
+        # Factor 1: Content quality (40% weight)
+        # Documents with substantial content are generally more valuable.
+        if len(doc.content.strip()) > 500: # Arbitrary threshold for "good" length
             score += 0.4
-        elif len(doc.content.strip()) > 200:
+        elif len(doc.content.strip()) > 200: # Arbitrary threshold for "moderate" length
             score += 0.2
         
-        # Recency (30%)
+        # Factor 2: Recency (30% weight)
+        # More recent legal documents are often more relevant, especially for dynamic regulations.
         if doc.publication_date:
             days_old = (datetime.now().date() - doc.publication_date).days
-            if days_old <= 365:  # Less than 1 year
+            if days_old <= 365:  # Less than 1 year old
                 score += 0.3
-            elif days_old <= 1095:  # Less than 3 years
+            elif days_old <= 1095:  # Less than 3 years old
                 score += 0.15
         
-        # Legal relevance (20%)
+        # Factor 3: Legal relevance (20% weight)
+        # Presence of specific keywords indicates direct relevance to traffic fine legislation.
         content_lower = doc.content.lower()
         relevance_keywords = [
             'multa', 'contraordenação', 'trânsito', 'veículo', 'automóvel',
@@ -288,13 +329,16 @@ class PortugueseLegalScraper:
         ]
         
         relevance_count = sum(1 for keyword in relevance_keywords if keyword in content_lower)
-        score += min(0.2, relevance_count * 0.02)
+        # Cap the relevance score contribution to 0.2 (20% of total)
+        score += min(0.2, relevance_count * 0.02) 
         
-        # Source authority (10%)
+        # Factor 4: Source authority (10% weight)
+        # Documents from highly authoritative sources are given a higher score.
         authority_sources = ['ansr', 'diário da república', 'dgsi', 'governo']
         if any(source in doc.source.lower() for source in authority_sources):
             score += 0.1
         
+        # Ensure the final score does not exceed 1.0
         return min(1.0, score)
 
     def _calculate_content_hash(self, content: str) -> str:
@@ -330,19 +374,20 @@ class PortugueseLegalScraper:
     
     def scrape_ansr_documents(self, max_documents: int = 100) -> List[LegalDocument]:
         """
-        Scrape ANSR (Autoridade Nacional de Segurança Rodoviária) documents.
-        
-        ANSR is responsible for traffic regulations and enforcement in Portugal.
+        Scrapes documents from ANSR (Autoridade Nacional de Segurança Rodoviária) website.
+        ANSR is a key source for traffic regulations and enforcement in Portugal.
+        The function iterates through predefined ANSR URLs, extracts document links,
+        downloads PDFs, extracts text content, and calculates a quality score for each document.
         
         Args:
-            max_documents: Maximum number of documents to collect
+            max_documents: The maximum number of documents to collect from ANSR sources.
             
         Returns:
-            List of LegalDocument objects
+            A list of LegalDocument objects collected from ANSR.
         """
         documents = []
         
-        # ANSR official URLs for different document types
+        # Define ANSR official URLs for different document types related to traffic and fines.
         ansr_sources = [
             {
                 'name': 'ANSR Regulations',
@@ -361,45 +406,54 @@ class PortugueseLegalScraper:
             }
         ]
         
+        # Iterate through each defined ANSR source
         for source in ansr_sources:
             logger.info(f"Scraping ANSR source: {source['name']}")
             
-            # Scrape with Selenium for dynamic content
+            # Use _make_request with Selenium as ANSR pages might be JavaScript-heavy
             page_source = self._make_request(source['url'], use_selenium=True)
             if not page_source:
+                logger.warning(f"Failed to retrieve page source for {source['name']}. Skipping.")
                 continue
                 
+            # Parse the page source with BeautifulSoup
             soup = BeautifulSoup(page_source, 'html.parser')
             
-            # Find document links (PDFs, DOCs, etc.)
+            # Find all anchor tags that link to PDF or DOC files (case-insensitive)
             doc_links = soup.find_all('a', href=re.compile(r'\.(pdf|doc|docx)$', re.I))
             
+            # Process each document link found
+            # Limit the number of documents per source to distribute max_documents evenly
             for link in doc_links[:max_documents // len(ansr_sources)]:
                 try:
+                    # Construct the absolute URL for the document
                     doc_url = urljoin(source['url'], link.get('href'))
                     doc_title = link.get_text(strip=True)
                     
+                    # Skip if title is empty or too short, indicating a malformed link
                     if not doc_title or len(doc_title) < 10:
+                        logger.debug(f"Skipping document with short/empty title: {doc_url}")
                         continue
                     
-                    # Download document
+                    # Generate a unique filename for the downloaded document
                     file_name = f"ansr_{hashlib.md5(doc_url.encode()).hexdigest()[:8]}.pdf"
                     file_path = self.download_dir / file_name
                     
+                    # Check if the document has already been downloaded
                     if file_path.exists():
-                        logger.info(f"Document already exists: {doc_title}")
+                        logger.info(f"Document already exists locally: {doc_title} ({file_name}). Skipping download.")
                         continue
                     
-                    # Download PDF
+                    # Download the PDF document
                     pdf_response = self._make_request(doc_url)
                     if pdf_response and 'application/pdf' in pdf_response.headers.get('Content-Type', ''):
                         with open(file_path, 'wb') as f:
                             f.write(pdf_response.content)
                         
-                        # Extract text content
+                        # Extract text content from the downloaded PDF
                         content = self._process_pdf_content(str(file_path))
                         
-                        # Create LegalDocument
+                        # Create a LegalDocument object
                         doc = LegalDocument(
                             title=doc_title,
                             content=content,
@@ -412,20 +466,26 @@ class PortugueseLegalScraper:
                             file_path=str(file_path)
                         )
                         
+                        # Calculate and assign a quality score to the document
                         doc.quality_score = self._calculate_quality_score(doc)
                         
-                        # Check for duplicates
+                        # Check for content duplicates using a hash
                         content_hash = self._calculate_content_hash(content)
                         if content_hash not in self.processed_hashes:
                             documents.append(doc)
                             self.processed_hashes.add(content_hash)
                             logger.info(f"Collected ANSR document: {doc_title} (quality: {doc.quality_score:.2f})")
+                        else:
+                            logger.info(f"Skipping duplicate ANSR document: {doc_title}")
+                    else:
+                        logger.warning(f"Failed to download PDF or unexpected content type for {doc_url}")
                     
                 except Exception as e:
-                    logger.error(f"Error processing ANSR document {doc_title}: {e}")
+                    logger.error(f"Error processing ANSR document {doc_title} from {doc_url}: {e}")
                     continue
         
         logger.info(f"ANSR scraping completed. Collected {len(documents)} documents.")
+        # Return documents up to the max_documents limit
         return documents[:max_documents]
 
     def scrape_diario_da_republica_documents(self, max_documents: int = 100) -> List[LegalDocument]:
@@ -651,13 +711,16 @@ class PortugueseLegalScraper:
 
     def scrape_all_sources(self, max_documents: int = 300) -> Dict[str, List[LegalDocument]]:
         """
-        Scrape all Portuguese legal sources concurrently.
+        Orchestrates the scraping of all defined Portuguese legal sources concurrently.
+        It distributes the `max_documents` limit evenly among the sources and uses a
+        ThreadPoolExecutor for parallel execution to improve efficiency.
         
         Args:
-            max_documents: Total documents to collect across all sources
+            max_documents: The total maximum number of documents to collect across all sources.
             
         Returns:
-            Dictionary mapping source names to lists of LegalDocument objects
+            A dictionary where keys are source names (e.g., 'ANSR', 'Diario_da_Republica', 'DGSI')
+            and values are lists of LegalDocument objects collected from each source.
         """
         logger.info(f"Starting comprehensive Portuguese legal document scraping (target: {max_documents} documents)")
         
@@ -667,29 +730,34 @@ class PortugueseLegalScraper:
             'DGSI': []
         }
         
-        # Distribute documents across sources
+        # Distribute the total document limit evenly across the three main sources.
         per_source = max_documents // 3
         
+        # Use ThreadPoolExecutor for concurrent scraping of different sources.
+        # The number of workers is configurable via self.concurrent_workers.
         with ThreadPoolExecutor(max_workers=self.concurrent_workers) as executor:
-            # Submit scraping tasks
+            # Submit each scraping task to the executor and map the future to its source name.
             future_to_source = {
                 executor.submit(self.scrape_ansr_documents, per_source): 'ANSR',
                 executor.submit(self.scrape_diario_da_republica_documents, per_source): 'Diario_da_Republica',
                 executor.submit(self.scrape_dgsi_documents, per_source): 'DGSI'
             }
             
-            # Collect results
+            # Collect results as each future completes.
             for future in as_completed(future_to_source):
                 source = future_to_source[future]
                 try:
+                    # Retrieve the results from the completed future.
+                    # A timeout is applied to prevent any single source from hanging indefinitely.
                     documents = future.result(timeout=300)  # 5 minute timeout per source
                     results[source] = documents
                     logger.info(f"{source} completed: {len(documents)} documents collected")
                 except Exception as e:
+                    # Log any exceptions that occur during a source's scraping process.
                     logger.error(f"{source} scraping failed: {e}")
-                    results[source] = []
+                    results[source] = [] # Ensure the source still has an empty list if it failed
         
-        # Log summary statistics
+        # Calculate and log summary statistics for the entire scraping operation.
         total_docs = sum(len(docs) for docs in results.values())
         high_quality_docs = sum(len([d for d in docs if d.quality_score > 0.7]) for docs in results.values())
         

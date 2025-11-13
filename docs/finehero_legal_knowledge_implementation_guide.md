@@ -16,36 +16,38 @@ This guide provides comprehensive technical implementation details for the FineH
 ### Directory Structure
 ```
 c:/dev/multas-ai/
-├── 01_Fontes_Oficiais/           # Official Portuguese legal sources
-│   ├── README.md                 # Source documentation overview
-│   ├── Source_Catalog.md         # Complete source catalog (163 lines)
-│   ├── Access_Logs/              # Download and access logs
-│   ├── Lisboa_Municipal/         # Lisboa parking regulations (596 KB)
-│   ├── Porto_Municipal/          # Porto parking regulations (158 KB)
-│   ├── Diario_da_Republica/      # DRE portal access (4.6 KB)
-│   └── Restricted_Access/        # IMT/ANSR access documentation
-├── 02_Artigos_By_Tipo/           # Annotated legal articles
-│   ├── CE-ARTIGOS_ANOTADOS_SUMMARY.md  # Articles summary
-│   ├── Estacionamento_Paragem/   # Parking violation articles
-│   ├── Velocidade/               # Speed violation articles
-│   ├── Falta_Documentos_Matricula/     # Missing documents articles
-│   ├── Defensa_Contestacao/      # Defense procedure articles
-│   └── Regulamentos_Municipais/  # Municipal regulation articles
-├── 03_Excertos_Anotados/         # Summary and validation
-│   └── finehero_summary.md       # Comprehensive validation report
-├── 04_Modelos_Cartas/            # Appeal letter templates
-│   ├── README.md                 # Templates documentation
-│   ├── CAMPOS_MAPEAVEL.md        # Field mapping documentation
-│   ├── carta_001_estacionamento_proibido.md
-│   ├── carta_002_excesso_velocidade.md
-│   ├── carta_003_falta_documentos.md
-│   ├── carta_004_violacao_semaforos.md
-│   ├── carta_005_estacionamento_prolongado.md
-│   ├── carta_006_defesa_geral_simplificada.md
-│   ├── carta_007_velocidade_tecnica.md
-│   └── carta_008_forca_maior.md
-├── 05_JSON_Base/                 # Main legal dataset
-│   └── finehero_legis_base_v1.json  # AI-ready legal knowledge base
+├── knowledge_base/
+│   ├── 01_Fontes_Oficiais/           # Official Portuguese legal sources
+│   │   ├── README.md                 # Source documentation overview
+│   │   ├── Source_Catalog.md         # Complete source catalog (163 lines)
+│   │   ├── Access_Logs/              # Download and access logs
+│   │   ├── Lisboa_Municipal/         # Lisboa parking regulations (596 KB)
+│   │   ├── Porto_Municipal/          # Porto parking regulations (158 KB)
+│   │   ├── Diario_da_Republica/      # DRE portal access (4.6 KB)
+│   │   └── Restricted_Access/        # IMT/ANSR access documentation
+│   ├── 02_Artigos_By_Tipo/           # Annotated legal articles
+│   │   ├── CE-ARTIGOS_ANOTADOS_SUMMARY.md  # Articles summary
+│   │   ├── Estacionamento_Paragem/   # Parking violation articles
+│   │   ├── Velocidade/               # Speed violation articles
+│   │   ├── Falta_Documentos_Matricula/     # Missing documents articles
+│   │   ├── Defensa_Contestacao/      # Defense procedure articles
+│   │   └── Regulamentos_Municipais/  # Municipal regulation articles
+│   ├── 03_Excertos_Anotados/         # Summary and validation
+│   │   └── finehero_summary.md       # Comprehensive validation report
+│   ├── 04_Modelos_Cartas/            # Appeal letter templates
+│   │   ├── README.md                 # Templates documentation
+│   │   ├── CAMPOS_MAPEAVEL.md        # Field mapping documentation
+│   │   ├── carta_001_estacionamento_proibido.md
+│   │   ├── carta_002_excesso_velocidade.md
+│   │   ├── carta_003_falta_documentos.md
+│   │   ├── carta_004_violacao_semaforos.md
+│   │   ├── carta_005_estacionamento_prolongado.md
+│   │   ├── carta_006_defesa_geral_simplificada.md
+│   │   ├── carta_007_velocidade_tecnica.md
+│   │   └── carta_008_forca_maior.md
+│   ├── 05_JSON_Base/                 # Main legal dataset
+│   │   └── finehero_legis_base_v1.json  # AI-ready legal knowledge base
+│   └── user_contributions_collector.py # User contributions collector
 └── docs/
     ├── finehero_legal_knowledge_system_prd.md      # Product requirements
     └── finehero_legal_knowledge_implementation_guide.md  # This guide
@@ -53,13 +55,13 @@ c:/dev/multas-ai/
 
 ### Core Components
 
-#### 1. Legal Source Repository (`/01_Fontes_Oficiais/`)
+#### 1. Legal Source Repository (`knowledge_base/01_Fontes_Oficiais/`)
 **Purpose:** Centralized storage of official Portuguese legal documents
 
 **Key Files:**
-- `Source_Catalog.md`: Complete catalog with 163 lines of detailed source documentation
-- `Access_Logs/download_links_log.md`: Comprehensive access log with dates
-- `README.md`: Overview of all sources with access status
+- `knowledge_base/01_Fontes_Oficiais/Source_Catalog.md`: Complete catalog with 163 lines of detailed source documentation
+- `knowledge_base/01_Fontes_Oficiais/Access_Logs/download_links_log.md`: Comprehensive access log with dates
+- `knowledge_base/01_Fontes_Oficiais/README.md`: Overview of all sources with access status
 
 **Implementation Details:**
 ```python
@@ -77,7 +79,7 @@ class LegalSource:
         self.conteudo: str             # Content summary
 ```
 
-#### 2. Annotated Legal Articles (`/02_Artigos_By_Tipo/`)
+#### 2. Annotated Legal Articles (`knowledge_base/02_Artigos_By_Tipo/`)
 **Purpose:** Structured legal articles with comprehensive metadata
 
 **Article Schema:**
@@ -107,7 +109,7 @@ class LegalArticle:
 - **Defesa/contestação (2 articles)**: CE-ART-135, CE-ART-137
 - **Regulamentos municipais (1 article)**: CE-REG-LIS
 
-#### 3. JSON Legal Dataset (`/05_JSON_Base/finehero_legis_base_v1.json`)
+#### 3. JSON Legal Dataset (`knowledge_base/05_JSON_Base/finehero_legis_base_v1.json`)
 **Purpose:** Primary AI-ready legal knowledge dataset
 
 **Dataset Structure:**
@@ -153,7 +155,7 @@ class LegalArticle:
 }
 ```
 
-#### 4. Appeal Letter Templates (`/04_Modelos_Cartas/`)
+#### 4. Appeal Letter Templates (`knowledge_base/04_Modelos_Cartas/`)
 **Purpose:** Structured templates for legal appeal letters
 
 **Template Structure:**
@@ -196,7 +198,7 @@ import os
 from datetime import datetime
 
 class FineHeroKnowledgeBase:
-    def __init__(self, dataset_path: str = "/05_JSON_Base/finehero_legis_base_v1.json"):
+    def __init__(self, dataset_path: str = "knowledge_base/05_JSON_Base/finehero_legis_base_v1.json"):
         self.dataset_path = dataset_path
         self.legal_data = None
         self.load_dataset()
@@ -242,7 +244,7 @@ import re
 from typing import Dict, Any
 
 class AppealTemplateManager:
-    def __init__(self, templates_dir: str = "/04_Modelos_Cartas/"):
+    def __init__(self, templates_dir: str = "knowledge_base/04_Modelos_Cartas/"):
         self.templates_dir = templates_dir
         self.templates = {}
         self.load_templates()
@@ -650,10 +652,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copy legal knowledge base
-COPY 05_JSON_Base/ /app/05_JSON_Base/
-COPY 04_Modelos_Cartas/ /app/04_Modelos_Cartas/
-COPY 01_Fontes_Oficiais/ /app/01_Fontes_Oficiais/
-COPY 02_Artigos_By_Tipo/ /app/02_Artigos_By_Tipo/
+COPY knowledge_base/05_JSON_Base/ /app/knowledge_base/05_JSON_Base/
+COPY knowledge_base/04_Modelos_Cartas/ /app/knowledge_base/04_Modelos_Cartas/
+COPY knowledge_base/01_Fontes_Oficiais/ /app/knowledge_base/01_Fontes_Oficiais/
+COPY knowledge_base/02_Artigos_By_Tipo/ /app/knowledge_base/02_Artigos_By_Tipo/
 
 # Set environment variables
 ENV PYTHONPATH=/app
@@ -759,11 +761,11 @@ SECRET_KEY=your-secret-key-here
 ALLOWED_ORIGINS=["https://finehero.app", "https://api.finehero.app"]
 
 # Legal data paths
-LEGAL_DATA_PATH=/app/data
-JSON_DATASET_PATH=/app/05_JSON_Base/finehero_legis_base_v1.json
-TEMPLATES_PATH=/app/04_Modelos_Cartas
-SOURCES_PATH=/app/01_Fontes_Oficiais
-ARTICLES_PATH=/app/02_Artigos_By_Tipo
+LEGAL_DATA_PATH=/app/knowledge_base
+JSON_DATASET_PATH=/app/knowledge_base/05_JSON_Base/finehero_legis_base_v1.json
+TEMPLATES_PATH=/app/knowledge_base/04_Modelos_Cartas
+SOURCES_PATH=/app/knowledge_base/01_Fontes_Oficiais
+ARTICLES_PATH=/app/knowledge_base/02_Artigos_By_Tipo
 
 # Monitoring
 SENTRY_DSN=your-sentry-dsn-here
@@ -1353,12 +1355,12 @@ class FineHeroBackupManager:
         
         with zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             # Backup JSON dataset
-            json_path = "/05_JSON_Base/finehero_legis_base_v1.json"
+            json_path = "knowledge_base/05_JSON_Base/finehero_legis_base_v1.json"
             if os.path.exists(json_path):
                 zipf.write(json_path, "data/finehero_legis_base_v1.json")
             
             # Backup templates
-            templates_dir = "/04_Modelos_Cartas"
+            templates_dir = "knowledge_base/04_Modelos_Cartas"
             if os.path.exists(templates_dir):
                 for root, dirs, files in os.walk(templates_dir):
                     for file in files:
@@ -1367,7 +1369,7 @@ class FineHeroBackupManager:
                         zipf.write(file_path, arcname)
             
             # Backup legal sources
-            sources_dir = "/01_Fontes_Oficiais"
+            sources_dir = "knowledge_base/01_Fontes_Oficiais"
             if os.path.exists(sources_dir):
                 for root, dirs, files in os.walk(sources_dir):
                     for file in files:
@@ -1376,7 +1378,7 @@ class FineHeroBackupManager:
                         zipf.write(file_path, arcname)
             
             # Backup annotated articles
-            articles_dir = "/02_Artigos_By_Tipo"
+            articles_dir = "knowledge_base/02_Artigos_By_Tipo"
             if os.path.exists(articles_dir):
                 for root, dirs, files in os.walk(articles_dir):
                     for file in files:
@@ -1409,10 +1411,10 @@ class FineHeroBackupManager:
         
         # List of components to check for changes
         components = [
-            "/05_JSON_Base/finehero_legis_base_v1.json",
-            "/04_Modelos_Cartas",
-            "/01_Fontes_Oficiais",
-            "/02_Artigos_By_Tipo"
+            "knowledge_base/05_JSON_Base/finehero_legis_base_v1.json",
+            "knowledge_base/04_Modelos_Cartas",
+            "knowledge_base/01_Fontes_Oficiais",
+            "knowledge_base/02_Artigos_By_Tipo"
         ]
         
         changed_files = []
@@ -1460,10 +1462,10 @@ class FineHeroBackupManager:
                 
                 # Restore each component
                 components = [
-                    ("data/finehero_legis_base_v1.json", "/05_JSON_Base/finehero_legis_base_v1.json"),
-                    ("templates", "/04_Modelos_Cartas"),
-                    ("sources", "/01_Fontes_Oficiais"),
-                    ("articles", "/02_Artigos_By_Tipo")
+                    ("data/finehero_legis_base_v1.json", "knowledge_base/05_JSON_Base/finehero_legis_base_v1.json"),
+                    ("templates", "knowledge_base/04_Modelos_Cartas"),
+                    ("sources", "knowledge_base/01_Fontes_Oficiais"),
+                    ("articles", "knowledge_base/02_Artigos_By_Tipo")
                 ]
                 
                 for zip_path, target_path in components:
