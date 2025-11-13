@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --finehero-primary: #1e40af;
+    --finehero-primary-light: #3b82f6;
+    --finehero-primary-dark: #1e3a8a;
+    --finehero-secondary: #dc2626;
+    --finehero-gold: #f59e0b;
+    --superhero-cape: #ffd700;
+    --superhero-power: #10b981;
+    --superhero-energy: #f59e0b;
+    --finehero-white: #ffffff;
+    --finehero-gray-100: #f3f4f6;
+    --finehero-gray-500: #6b7280;
+    --finehero-gray-900: #111827;
+    --finehero-success: #10b981;
+    --finehero-warning: #f59e0b;
+    --finehero-error: #ef4444;
+  }
+}
