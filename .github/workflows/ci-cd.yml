@@ -5,9 +5,7 @@ on:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
-  schedule:
-    # Run daily dependency scan at 2 AM UTC
-    - cron: '0 2 * * *'
+  
 
 env:
   PYTHON_VERSION: '3.11'
